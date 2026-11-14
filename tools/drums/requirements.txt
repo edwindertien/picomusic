@@ -1,0 +1,4 @@
+# Python packages for the drum editor:   python3 -m pip install -r tools/drums/requirements.txt
+flask>=2.2
+# optional, only to read / write the machine over USB:
+pyserial>=3.5

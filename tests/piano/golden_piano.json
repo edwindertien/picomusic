@@ -1,0 +1,18 @@
+{
+ "neutral": "set vol 110\nset tone 64\nset hard 64\nset width 64\nset tune 64\nset soft 0\nset decay 127\nset rel 64\n",
+ "scenarios": {
+  "single_c4_v80": "on 60 80\nrun 44100\nwrite /tmp/g.raw\n",
+  "soft_dark_bass": "on 33 25\nrun 30000\noff 33\nrun 20000\nwrite /tmp/g.raw\n",
+  "chord_pedal_bend": "pedal 1\non 48 90\non 64 70\non 67 110\nrun 20000\nbend 4000\nrun 10000\noff 48\noff 64\nrun 20000\npedal 0\nrun 20000\nwrite /tmp/g.raw\n",
+  "flood_steals": "pedal 1\non 30 60\nrun 700\non 35 69\nrun 700\non 40 78\nrun 700\non 45 87\nrun 700\non 50 96\nrun 700\non 55 105\nrun 700\non 60 114\nrun 700\non 65 60\nrun 700\non 70 69\nrun 700\non 75 78\nrun 700\non 80 87\nrun 700\non 85 96\nrun 700\non 90 105\nrun 700\non 95 114\nrun 700\non 30 60\nrun 700\non 35 69\nrun 700\non 40 78\nrun 700\non 45 87\nrun 700\non 50 96\nrun 700\non 55 105\nrun 700\non 60 114\nrun 700\non 65 60\nrun 700\non 70 69\nrun 700\non 75 78\nrun 700\non 80 87\nrun 700\non 85 96\nrun 700\non 90 105\nrun 700\non 95 114\nrun 700\non 30 60\nrun 700\non 35 69\nrun 700\non 40 78\nrun 700\non 45 87\nrun 700\non 50 96\nrun 700\non 55 105\nrun 700\non 60 114\nrun 700\non 65 60\nrun 700\non 70 69\nrun 700\non 75 78\nrun 700\non 80 87\nrun 700\non 85 96\nrun 700\non 90 105\nrun 700\non 95 114\nrun 700\non 30 60\nrun 700\non 35 69\nrun 700\non 40 78\nrun 700\non 45 87\nrun 700\non 50 96\nrun 700\non 55 105\nrun 700\non 60 114\nrun 700\non 65 60\nrun 700\non 70 69\nrun 700\non 75 78\nrun 700\non 80 87\nrun 700\non 85 96\nrun 700\non 90 105\nrun 700\non 95 114\nrun 700\non 30 60\nrun 700\non 35 69\nrun 700\non 40 78\nrun 700\non 45 87\nrun 700\nwrite /tmp/g.raw\n",
+  "extremes_tone_hard_soft": "set tone 20\nset hard 100\nset soft 90\non 72 127\non 40 10\nrun 25000\nwrite /tmp/g.raw\n"
+ },
+ "md5": {
+  "single_c4_v80": "4c723dc8e9ac9f365085e23b96b9104e",
+  "soft_dark_bass": "8fbf2d8119758556468e7afb6c79c204",
+  "chord_pedal_bend": "6564945bc7874b523196dc223be73890",
+  "flood_steals": "0b87849ccab3af7677936ed09122e8a0",
+  "extremes_tone_hard_soft": "5373a2a011a816f6c53591c359f5e971"
+ },
+ "note": "Re-recorded after the output limiter was replaced (exactly linear below 0.72) and the grand bank was re-encoded with adpcm_beam 16. Update ONLY on purpose."
+}

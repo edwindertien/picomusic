@@ -1,0 +1,14 @@
+# A Rhodes on its own: jRhodes3c (Jeff Learman, a 1977 Mark I Stage 73), 5 velocity layers x 15 roots, in its looped FLAC set.
+# Fetch the samples:   tools/piano/fetch_rhodes.sh        LICENCE: CC BY-NC-SA 4.0 (non-commercial, share-alike): for your own use.
+budget: 1400000
+normalize_peak: 0.92
+adpcm_beam: 16
+instruments:
+  - name: Rhodes
+    credit: "jRhodes3c (Learman) CC BY-NC-SA 4.0"
+    defaults: {rel: 40, trem: 96, trate: 60, chor: 30, rev: 25}       # the suitcase: auto-pan, a little chorus and reverb
+    rate_rules: [{max_key: 127, rate: 24000, maxdur: 2.0}]
+    sfz:
+      - file: ../samples/jRhodes3c/jRhodes3c-looped-flac-sfz/_jRhodes-mono-looped.sfz
+        loop: auto            # this SFZ keeps its loop points inside the FLAC files: the tool finds its own (a whole number of periods, crossfaded)
+        max_layers: 3         # keep 3 of the 5 velocity layers (evenly spaced, merged to cover 1..127); remove this line for all 5 (75 samples)

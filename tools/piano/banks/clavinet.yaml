@@ -1,0 +1,14 @@
+# A clavinet on its own: "Stevie Clavinet" (a Hohner clavinet, anonymously sourced, cleaned up by Jeff Learman), 4 velocity layers x 60 roots.
+# Fetch the samples:   tools/piano/fetch_clavinet.sh      LICENCE: UNKNOWN (its README says so): private use only, do not redistribute.
+budget: 900000
+normalize_peak: 0.92
+adpcm_beam: 16
+instruments:
+  - name: Clavinet
+    credit: "Stevie Clavinet - private use only"
+    defaults: {rel: 22, decay: 127, wah: 0, chor: 0}                  # a clavinet damps fast; try the wah (WAH, WPOS = CC11 pedal)
+    rate_rules: [{max_key: 127, rate: 24000, maxdur: 1.6}]            # clavinet notes die within a second or two: no loops needed
+    sfz:
+      - file: ../samples/stevie-clavinet/Stevie Clavinet.sfz
+        max_layers: 2         # 2 of the 4 velocity layers
+        every: 3              # every 3rd root: a sample every semitone is overkill (the release-noise samples are skipped anyway)

@@ -1,0 +1,17 @@
+# The acoustic grand shipped with the firmware: Salamander Grand Piano V3 (Yamaha C5, Alexander Holm, CC BY 3.0), LOSSLESS (one velocity layer, 48 kHz / 24 bit).
+# Fetch the samples first:   tools/piano/fetch_salamander.sh        (puts 30 FLAC files, about 45 MB, in samples/salamander-flac/)
+budget: 3000000                 # bytes of ADPCM for ALL instruments together (a 4 MB part: ~3.0 MB samples + firmware)
+normalize_peak: 0.92            # the loudest sample of an instrument is scaled to this peak
+pcm_head_ms: 9                  # the first 9 ms of every zone (the hammer strike) are stored as 16-bit PCM: 4-bit ADPCM measured 27-29 dB SNR there against 46 dB elsewhere. Costs ~0.4 KB per zone
+normalize: zone                 # every zone is stored at full scale; its level is restored by the zone gain at run time (better SNR for quiet zones, the same playback level)
+adpcm_beam: 16                  # encoder search width: 0 = greedy, 16 = about +2.5 dB over greedy on the codec-2 bank (about 1 s per sample)
+instruments:
+  - name: Grand
+    credit: "Salamander Grand V2 - Holm - CC BY 3.0"     # shown at the bottom of the screen (max 38 characters)
+    defaults: {tone: 64, hard: 64, rel: 64, decay: 127, width: 64}
+    rate_rules:                 # sample rate and maximum length by register: low notes need little bandwidth and ring for a long time
+      - {max_key: C2, rate: 16000, maxdur: 14.0}
+      - {max_key: C5, rate: 24000, maxdur: 9.0}
+      - {max_key: C8, rate: 32000, maxdur: 4.5}
+    import:
+      - {dir: ../samples/salamander-flac, pattern: "{note}.flac"}     # A0.flac, C1.flac, Ds1.flac ... the note name in the file name is the root key

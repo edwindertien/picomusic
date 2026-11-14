@@ -1,0 +1,1490 @@
+[
+ {
+  "name": "factory",
+  "inst": "BD",
+  "values": [
+   123,
+   64,
+   45,
+   40,
+   64
+  ],
+  "note": "the default setting"
+ },
+ {
+  "name": "short",
+  "inst": "BD",
+  "values": [
+   123,
+   64,
+   25,
+   40,
+   64
+  ],
+  "note": ""
+ },
+ {
+  "name": "long",
+  "inst": "BD",
+  "values": [
+   123,
+   64,
+   70,
+   40,
+   64
+  ],
+  "note": ""
+ },
+ {
+  "name": "low",
+  "inst": "BD",
+  "values": [
+   123,
+   42,
+   45,
+   40,
+   64
+  ],
+  "note": ""
+ },
+ {
+  "name": "high",
+  "inst": "BD",
+  "values": [
+   123,
+   86,
+   45,
+   40,
+   64
+  ],
+  "note": ""
+ },
+ {
+  "name": "dark",
+  "inst": "BD",
+  "values": [
+   123,
+   64,
+   45,
+   12,
+   64
+  ],
+  "note": ""
+ },
+ {
+  "name": "bright",
+  "inst": "BD",
+  "values": [
+   123,
+   64,
+   45,
+   68,
+   64
+  ],
+  "note": ""
+ },
+ {
+  "name": "factory",
+  "inst": "SD",
+  "values": [
+   107,
+   64,
+   55,
+   75,
+   64
+  ],
+  "note": "the default setting"
+ },
+ {
+  "name": "short",
+  "inst": "SD",
+  "values": [
+   107,
+   64,
+   35,
+   75,
+   64
+  ],
+  "note": ""
+ },
+ {
+  "name": "long",
+  "inst": "SD",
+  "values": [
+   107,
+   64,
+   80,
+   75,
+   64
+  ],
+  "note": ""
+ },
+ {
+  "name": "low",
+  "inst": "SD",
+  "values": [
+   107,
+   42,
+   55,
+   75,
+   64
+  ],
+  "note": ""
+ },
+ {
+  "name": "high",
+  "inst": "SD",
+  "values": [
+   107,
+   86,
+   55,
+   75,
+   64
+  ],
+  "note": ""
+ },
+ {
+  "name": "dark",
+  "inst": "SD",
+  "values": [
+   107,
+   64,
+   55,
+   47,
+   64
+  ],
+  "note": ""
+ },
+ {
+  "name": "bright",
+  "inst": "SD",
+  "values": [
+   107,
+   64,
+   55,
+   103,
+   64
+  ],
+  "note": ""
+ },
+ {
+  "name": "factory",
+  "inst": "LT",
+  "values": [
+   104,
+   64,
+   60,
+   35,
+   36
+  ],
+  "note": "the default setting"
+ },
+ {
+  "name": "short",
+  "inst": "LT",
+  "values": [
+   104,
+   64,
+   40,
+   35,
+   36
+  ],
+  "note": ""
+ },
+ {
+  "name": "long",
+  "inst": "LT",
+  "values": [
+   104,
+   64,
+   85,
+   35,
+   36
+  ],
+  "note": ""
+ },
+ {
+  "name": "low",
+  "inst": "LT",
+  "values": [
+   104,
+   42,
+   60,
+   35,
+   36
+  ],
+  "note": ""
+ },
+ {
+  "name": "high",
+  "inst": "LT",
+  "values": [
+   104,
+   86,
+   60,
+   35,
+   36
+  ],
+  "note": ""
+ },
+ {
+  "name": "dark",
+  "inst": "LT",
+  "values": [
+   104,
+   64,
+   60,
+   7,
+   36
+  ],
+  "note": ""
+ },
+ {
+  "name": "bright",
+  "inst": "LT",
+  "values": [
+   104,
+   64,
+   60,
+   63,
+   36
+  ],
+  "note": ""
+ },
+ {
+  "name": "factory",
+  "inst": "MT",
+  "values": [
+   104,
+   64,
+   55,
+   35,
+   52
+  ],
+  "note": "the default setting"
+ },
+ {
+  "name": "short",
+  "inst": "MT",
+  "values": [
+   104,
+   64,
+   35,
+   35,
+   52
+  ],
+  "note": ""
+ },
+ {
+  "name": "long",
+  "inst": "MT",
+  "values": [
+   104,
+   64,
+   80,
+   35,
+   52
+  ],
+  "note": ""
+ },
+ {
+  "name": "low",
+  "inst": "MT",
+  "values": [
+   104,
+   42,
+   55,
+   35,
+   52
+  ],
+  "note": ""
+ },
+ {
+  "name": "high",
+  "inst": "MT",
+  "values": [
+   104,
+   86,
+   55,
+   35,
+   52
+  ],
+  "note": ""
+ },
+ {
+  "name": "dark",
+  "inst": "MT",
+  "values": [
+   104,
+   64,
+   55,
+   7,
+   52
+  ],
+  "note": ""
+ },
+ {
+  "name": "bright",
+  "inst": "MT",
+  "values": [
+   104,
+   64,
+   55,
+   63,
+   52
+  ],
+  "note": ""
+ },
+ {
+  "name": "factory",
+  "inst": "HT",
+  "values": [
+   103,
+   64,
+   50,
+   35,
+   72
+  ],
+  "note": "the default setting"
+ },
+ {
+  "name": "short",
+  "inst": "HT",
+  "values": [
+   103,
+   64,
+   30,
+   35,
+   72
+  ],
+  "note": ""
+ },
+ {
+  "name": "long",
+  "inst": "HT",
+  "values": [
+   103,
+   64,
+   75,
+   35,
+   72
+  ],
+  "note": ""
+ },
+ {
+  "name": "low",
+  "inst": "HT",
+  "values": [
+   103,
+   42,
+   50,
+   35,
+   72
+  ],
+  "note": ""
+ },
+ {
+  "name": "high",
+  "inst": "HT",
+  "values": [
+   103,
+   86,
+   50,
+   35,
+   72
+  ],
+  "note": ""
+ },
+ {
+  "name": "dark",
+  "inst": "HT",
+  "values": [
+   103,
+   64,
+   50,
+   7,
+   72
+  ],
+  "note": ""
+ },
+ {
+  "name": "bright",
+  "inst": "HT",
+  "values": [
+   103,
+   64,
+   50,
+   63,
+   72
+  ],
+  "note": ""
+ },
+ {
+  "name": "factory",
+  "inst": "RS",
+  "values": [
+   94,
+   64,
+   50,
+   64,
+   58
+  ],
+  "note": "the default setting"
+ },
+ {
+  "name": "short",
+  "inst": "RS",
+  "values": [
+   94,
+   64,
+   30,
+   64,
+   58
+  ],
+  "note": ""
+ },
+ {
+  "name": "long",
+  "inst": "RS",
+  "values": [
+   94,
+   64,
+   75,
+   64,
+   58
+  ],
+  "note": ""
+ },
+ {
+  "name": "low",
+  "inst": "RS",
+  "values": [
+   94,
+   42,
+   50,
+   64,
+   58
+  ],
+  "note": ""
+ },
+ {
+  "name": "high",
+  "inst": "RS",
+  "values": [
+   94,
+   86,
+   50,
+   64,
+   58
+  ],
+  "note": ""
+ },
+ {
+  "name": "dark",
+  "inst": "RS",
+  "values": [
+   94,
+   64,
+   50,
+   36,
+   58
+  ],
+  "note": ""
+ },
+ {
+  "name": "bright",
+  "inst": "RS",
+  "values": [
+   94,
+   64,
+   50,
+   92,
+   58
+  ],
+  "note": ""
+ },
+ {
+  "name": "factory",
+  "inst": "CP",
+  "values": [
+   102,
+   64,
+   55,
+   70,
+   70
+  ],
+  "note": "the default setting"
+ },
+ {
+  "name": "short",
+  "inst": "CP",
+  "values": [
+   102,
+   64,
+   35,
+   70,
+   70
+  ],
+  "note": ""
+ },
+ {
+  "name": "long",
+  "inst": "CP",
+  "values": [
+   102,
+   64,
+   80,
+   70,
+   70
+  ],
+  "note": ""
+ },
+ {
+  "name": "low",
+  "inst": "CP",
+  "values": [
+   102,
+   42,
+   55,
+   70,
+   70
+  ],
+  "note": ""
+ },
+ {
+  "name": "high",
+  "inst": "CP",
+  "values": [
+   102,
+   86,
+   55,
+   70,
+   70
+  ],
+  "note": ""
+ },
+ {
+  "name": "dark",
+  "inst": "CP",
+  "values": [
+   102,
+   64,
+   55,
+   42,
+   70
+  ],
+  "note": ""
+ },
+ {
+  "name": "bright",
+  "inst": "CP",
+  "values": [
+   102,
+   64,
+   55,
+   98,
+   70
+  ],
+  "note": ""
+ },
+ {
+  "name": "factory",
+  "inst": "CB",
+  "values": [
+   92,
+   64,
+   60,
+   64,
+   84
+  ],
+  "note": "the default setting"
+ },
+ {
+  "name": "short",
+  "inst": "CB",
+  "values": [
+   92,
+   64,
+   40,
+   64,
+   84
+  ],
+  "note": ""
+ },
+ {
+  "name": "long",
+  "inst": "CB",
+  "values": [
+   92,
+   64,
+   85,
+   64,
+   84
+  ],
+  "note": ""
+ },
+ {
+  "name": "low",
+  "inst": "CB",
+  "values": [
+   92,
+   42,
+   60,
+   64,
+   84
+  ],
+  "note": ""
+ },
+ {
+  "name": "high",
+  "inst": "CB",
+  "values": [
+   92,
+   86,
+   60,
+   64,
+   84
+  ],
+  "note": ""
+ },
+ {
+  "name": "dark",
+  "inst": "CB",
+  "values": [
+   92,
+   64,
+   60,
+   36,
+   84
+  ],
+  "note": ""
+ },
+ {
+  "name": "bright",
+  "inst": "CB",
+  "values": [
+   92,
+   64,
+   60,
+   92,
+   84
+  ],
+  "note": ""
+ },
+ {
+  "name": "factory",
+  "inst": "CH",
+  "values": [
+   105,
+   64,
+   30,
+   64,
+   78
+  ],
+  "note": "the default setting"
+ },
+ {
+  "name": "short",
+  "inst": "CH",
+  "values": [
+   105,
+   64,
+   10,
+   64,
+   78
+  ],
+  "note": ""
+ },
+ {
+  "name": "long",
+  "inst": "CH",
+  "values": [
+   105,
+   64,
+   55,
+   64,
+   78
+  ],
+  "note": ""
+ },
+ {
+  "name": "low",
+  "inst": "CH",
+  "values": [
+   105,
+   42,
+   30,
+   64,
+   78
+  ],
+  "note": ""
+ },
+ {
+  "name": "high",
+  "inst": "CH",
+  "values": [
+   105,
+   86,
+   30,
+   64,
+   78
+  ],
+  "note": ""
+ },
+ {
+  "name": "dark",
+  "inst": "CH",
+  "values": [
+   105,
+   64,
+   30,
+   36,
+   78
+  ],
+  "note": ""
+ },
+ {
+  "name": "bright",
+  "inst": "CH",
+  "values": [
+   105,
+   64,
+   30,
+   92,
+   78
+  ],
+  "note": ""
+ },
+ {
+  "name": "factory",
+  "inst": "OH",
+  "values": [
+   94,
+   64,
+   55,
+   64,
+   84
+  ],
+  "note": "the default setting"
+ },
+ {
+  "name": "short",
+  "inst": "OH",
+  "values": [
+   94,
+   64,
+   35,
+   64,
+   84
+  ],
+  "note": ""
+ },
+ {
+  "name": "long",
+  "inst": "OH",
+  "values": [
+   94,
+   64,
+   80,
+   64,
+   84
+  ],
+  "note": ""
+ },
+ {
+  "name": "low",
+  "inst": "OH",
+  "values": [
+   94,
+   42,
+   55,
+   64,
+   84
+  ],
+  "note": ""
+ },
+ {
+  "name": "high",
+  "inst": "OH",
+  "values": [
+   94,
+   86,
+   55,
+   64,
+   84
+  ],
+  "note": ""
+ },
+ {
+  "name": "dark",
+  "inst": "OH",
+  "values": [
+   94,
+   64,
+   55,
+   36,
+   84
+  ],
+  "note": ""
+ },
+ {
+  "name": "bright",
+  "inst": "OH",
+  "values": [
+   94,
+   64,
+   55,
+   92,
+   84
+  ],
+  "note": ""
+ },
+ {
+  "name": "factory",
+  "inst": "CY",
+  "values": [
+   77,
+   64,
+   65,
+   64,
+   92
+  ],
+  "note": "the default setting"
+ },
+ {
+  "name": "short",
+  "inst": "CY",
+  "values": [
+   77,
+   64,
+   45,
+   64,
+   92
+  ],
+  "note": ""
+ },
+ {
+  "name": "long",
+  "inst": "CY",
+  "values": [
+   77,
+   64,
+   90,
+   64,
+   92
+  ],
+  "note": ""
+ },
+ {
+  "name": "low",
+  "inst": "CY",
+  "values": [
+   77,
+   42,
+   65,
+   64,
+   92
+  ],
+  "note": ""
+ },
+ {
+  "name": "high",
+  "inst": "CY",
+  "values": [
+   77,
+   86,
+   65,
+   64,
+   92
+  ],
+  "note": ""
+ },
+ {
+  "name": "dark",
+  "inst": "CY",
+  "values": [
+   77,
+   64,
+   65,
+   36,
+   92
+  ],
+  "note": ""
+ },
+ {
+  "name": "bright",
+  "inst": "CY",
+  "values": [
+   77,
+   64,
+   65,
+   92,
+   92
+  ],
+  "note": ""
+ },
+ {
+  "name": "factory",
+  "inst": "CL",
+  "values": [
+   89,
+   64,
+   50,
+   64,
+   46
+  ],
+  "note": "the default setting"
+ },
+ {
+  "name": "short",
+  "inst": "CL",
+  "values": [
+   89,
+   64,
+   30,
+   64,
+   46
+  ],
+  "note": ""
+ },
+ {
+  "name": "long",
+  "inst": "CL",
+  "values": [
+   89,
+   64,
+   75,
+   64,
+   46
+  ],
+  "note": ""
+ },
+ {
+  "name": "low",
+  "inst": "CL",
+  "values": [
+   89,
+   42,
+   50,
+   64,
+   46
+  ],
+  "note": ""
+ },
+ {
+  "name": "high",
+  "inst": "CL",
+  "values": [
+   89,
+   86,
+   50,
+   64,
+   46
+  ],
+  "note": ""
+ },
+ {
+  "name": "dark",
+  "inst": "CL",
+  "values": [
+   89,
+   64,
+   50,
+   36,
+   46
+  ],
+  "note": ""
+ },
+ {
+  "name": "bright",
+  "inst": "CL",
+  "values": [
+   89,
+   64,
+   50,
+   92,
+   46
+  ],
+  "note": ""
+ },
+ {
+  "name": "factory",
+  "inst": "MA",
+  "values": [
+   79,
+   64,
+   40,
+   64,
+   98
+  ],
+  "note": "the default setting"
+ },
+ {
+  "name": "short",
+  "inst": "MA",
+  "values": [
+   79,
+   64,
+   20,
+   64,
+   98
+  ],
+  "note": ""
+ },
+ {
+  "name": "long",
+  "inst": "MA",
+  "values": [
+   79,
+   64,
+   65,
+   64,
+   98
+  ],
+  "note": ""
+ },
+ {
+  "name": "low",
+  "inst": "MA",
+  "values": [
+   79,
+   42,
+   40,
+   64,
+   98
+  ],
+  "note": ""
+ },
+ {
+  "name": "high",
+  "inst": "MA",
+  "values": [
+   79,
+   86,
+   40,
+   64,
+   98
+  ],
+  "note": ""
+ },
+ {
+  "name": "dark",
+  "inst": "MA",
+  "values": [
+   79,
+   64,
+   40,
+   36,
+   98
+  ],
+  "note": ""
+ },
+ {
+  "name": "bright",
+  "inst": "MA",
+  "values": [
+   79,
+   64,
+   40,
+   92,
+   98
+  ],
+  "note": ""
+ },
+ {
+  "name": "factory",
+  "inst": "LC",
+  "values": [
+   100,
+   64,
+   60,
+   35,
+   26
+  ],
+  "note": "the default setting"
+ },
+ {
+  "name": "short",
+  "inst": "LC",
+  "values": [
+   100,
+   64,
+   40,
+   35,
+   26
+  ],
+  "note": ""
+ },
+ {
+  "name": "long",
+  "inst": "LC",
+  "values": [
+   100,
+   64,
+   85,
+   35,
+   26
+  ],
+  "note": ""
+ },
+ {
+  "name": "low",
+  "inst": "LC",
+  "values": [
+   100,
+   42,
+   60,
+   35,
+   26
+  ],
+  "note": ""
+ },
+ {
+  "name": "high",
+  "inst": "LC",
+  "values": [
+   100,
+   86,
+   60,
+   35,
+   26
+  ],
+  "note": ""
+ },
+ {
+  "name": "dark",
+  "inst": "LC",
+  "values": [
+   100,
+   64,
+   60,
+   7,
+   26
+  ],
+  "note": ""
+ },
+ {
+  "name": "bright",
+  "inst": "LC",
+  "values": [
+   100,
+   64,
+   60,
+   63,
+   26
+  ],
+  "note": ""
+ },
+ {
+  "name": "factory",
+  "inst": "MC",
+  "values": [
+   100,
+   64,
+   55,
+   35,
+   40
+  ],
+  "note": "the default setting"
+ },
+ {
+  "name": "short",
+  "inst": "MC",
+  "values": [
+   100,
+   64,
+   35,
+   35,
+   40
+  ],
+  "note": ""
+ },
+ {
+  "name": "long",
+  "inst": "MC",
+  "values": [
+   100,
+   64,
+   80,
+   35,
+   40
+  ],
+  "note": ""
+ },
+ {
+  "name": "low",
+  "inst": "MC",
+  "values": [
+   100,
+   42,
+   55,
+   35,
+   40
+  ],
+  "note": ""
+ },
+ {
+  "name": "high",
+  "inst": "MC",
+  "values": [
+   100,
+   86,
+   55,
+   35,
+   40
+  ],
+  "note": ""
+ },
+ {
+  "name": "dark",
+  "inst": "MC",
+  "values": [
+   100,
+   64,
+   55,
+   7,
+   40
+  ],
+  "note": ""
+ },
+ {
+  "name": "bright",
+  "inst": "MC",
+  "values": [
+   100,
+   64,
+   55,
+   63,
+   40
+  ],
+  "note": ""
+ },
+ {
+  "name": "factory",
+  "inst": "HC",
+  "values": [
+   100,
+   64,
+   50,
+   35,
+   56
+  ],
+  "note": "the default setting"
+ },
+ {
+  "name": "short",
+  "inst": "HC",
+  "values": [
+   100,
+   64,
+   30,
+   35,
+   56
+  ],
+  "note": ""
+ },
+ {
+  "name": "long",
+  "inst": "HC",
+  "values": [
+   100,
+   64,
+   75,
+   35,
+   56
+  ],
+  "note": ""
+ },
+ {
+  "name": "low",
+  "inst": "HC",
+  "values": [
+   100,
+   42,
+   50,
+   35,
+   56
+  ],
+  "note": ""
+ },
+ {
+  "name": "high",
+  "inst": "HC",
+  "values": [
+   100,
+   86,
+   50,
+   35,
+   56
+  ],
+  "note": ""
+ },
+ {
+  "name": "dark",
+  "inst": "HC",
+  "values": [
+   100,
+   64,
+   50,
+   7,
+   56
+  ],
+  "note": ""
+ },
+ {
+  "name": "bright",
+  "inst": "HC",
+  "values": [
+   100,
+   64,
+   50,
+   63,
+   56
+  ],
+  "note": ""
+ },
+ {
+  "name": "sub boom",
+  "inst": "BD",
+  "values": [
+   123,
+   54,
+   100,
+   30,
+   64
+  ],
+  "note": ""
+ },
+ {
+  "name": "punch",
+  "inst": "BD",
+  "values": [
+   123,
+   70,
+   25,
+   90,
+   64
+  ],
+  "note": ""
+ },
+ {
+  "name": "click",
+  "inst": "BD",
+  "values": [
+   120,
+   76,
+   32,
+   120,
+   64
+  ],
+  "note": ""
+ },
+ {
+  "name": "snappy",
+  "inst": "SD",
+  "values": [
+   107,
+   64,
+   50,
+   118,
+   64
+  ],
+  "note": ""
+ },
+ {
+  "name": "fat",
+  "inst": "SD",
+  "values": [
+   110,
+   52,
+   70,
+   40,
+   64
+  ],
+  "note": ""
+ },
+ {
+  "name": "tight",
+  "inst": "SD",
+  "values": [
+   105,
+   70,
+   28,
+   80,
+   64
+  ],
+  "note": ""
+ },
+ {
+  "name": "tick",
+  "inst": "CH",
+  "values": [
+   100,
+   70,
+   12,
+   100,
+   78
+  ],
+  "note": ""
+ },
+ {
+  "name": "sizzle",
+  "inst": "CH",
+  "values": [
+   100,
+   64,
+   45,
+   80,
+   78
+  ],
+  "note": ""
+ },
+ {
+  "name": "short open",
+  "inst": "OH",
+  "values": [
+   94,
+   64,
+   35,
+   64,
+   84
+  ],
+  "note": ""
+ },
+ {
+  "name": "wash",
+  "inst": "OH",
+  "values": [
+   90,
+   60,
+   90,
+   70,
+   84
+  ],
+  "note": ""
+ },
+ {
+  "name": "tight clap",
+  "inst": "CP",
+  "values": [
+   102,
+   64,
+   30,
+   80,
+   70
+  ],
+  "note": ""
+ },
+ {
+  "name": "room clap",
+  "inst": "CP",
+  "values": [
+   100,
+   58,
+   85,
+   55,
+   70
+  ],
+  "note": ""
+ }
+]

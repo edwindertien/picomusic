@@ -1,0 +1,30 @@
+# The three instruments in ONE 4 MB bank: acoustic grand + Rhodes + clavinet. Fetch the samples first:
+#   tools/piano/fetch_salamander.sh   tools/piano/fetch_rhodes.sh   tools/piano/fetch_clavinet.sh
+# Licences: Salamander CC BY 3.0; jRhodes3c CC BY-NC-SA 4.0 (non-commercial, share-alike); Stevie Clavinet UNKNOWN (private use only): see NOTICE.md.
+# The budget is shared. All samples are cut by ONE scale factor (see the budget bar in the GUI), so the 'maxdur' values below are the wanted lengths when that scale is 1.
+budget: 3000000
+normalize_peak: 0.92
+normalize: zone
+level_match: auto               # bring the three instruments to the same loudness (RMS of the first second); the build report says how many dB each was moved. 'gain' below still adds on top
+pcm_head_ms: 9
+adpcm_beam: 16
+instruments:
+  - name: Grand
+    credit: "Salamander Grand V2 - Holm - CC BY 3.0"
+    defaults: {tone: 64, hard: 64, rel: 64, decay: 127, width: 64}
+    rate_rules:                # half the grand's flash: notes are about half as long as in banks/grand.yaml (see README section 2)
+      - {max_key: C2, rate: 16000, maxdur: 7.5}
+      - {max_key: C5, rate: 24000, maxdur: 4.8}
+      - {max_key: C8, rate: 32000, maxdur: 2.4}
+    import: [{dir: ../samples/salamander-flac, pattern: "{note}.flac"}]
+  - name: Rhodes
+    credit: "jRhodes3c (Learman) CC BY-NC-SA 4.0"
+    gain: -1.0
+    defaults: {rel: 40, trem: 96, trate: 60, chor: 30, rev: 25}
+    rate_rules: [{max_key: 127, rate: 24000, maxdur: 1.8}]
+    sfz: [{file: ../samples/jRhodes3c/jRhodes3c-looped-flac-sfz/_jRhodes-mono-looped.sfz, loop: auto, max_layers: 3}]
+  - name: Clavinet
+    credit: "Stevie Clavinet - private use only"
+    defaults: {rel: 22, decay: 127}
+    rate_rules: [{max_key: 127, rate: 24000, maxdur: 1.5}]
+    sfz: [{file: ../samples/stevie-clavinet/Stevie Clavinet.sfz, max_layers: 2, every: 3}]

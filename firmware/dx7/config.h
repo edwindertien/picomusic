@@ -1,0 +1,78 @@
+#pragma once
+// ============================================================
+//  config.h  —  Pico DX7: six-operator FM synthesizer, Pico 2 (RP2350)
+//  PURE #defines only. No #includes, no code, no classes.
+// ============================================================
+
+// ---- Feature flags -----------------------------------------
+#define ENABLE_LCD        1
+#define ENABLE_SERIAL     1
+#ifndef ENABLE_USB_HOST          // the *_nohost envs pass -DENABLE_USB_HOST=0
+#define ENABLE_USB_HOST   1
+#endif
+#define MIDI_HOST_DP_PIN  6      // D+ = GP6, D- = GP7
+
+// ---- Voices --------------------------------------------------
+#define N_POLY          12       // notes that can sound at once (the original has 16: raise it if the CPU load shown on the LCD allows)
+#define N_VOICES        16       // the pool: N_POLY + 4 spare slots in which stolen voices fade out quickly instead of being cut (a click)
+#define KEY_LO          12
+#define KEY_HI         120
+#define EVT_RING        64       // core 0 -> core 1 event queue (power of two)
+
+// ---- MIDI --------------------------------------------------
+#define MIDI_CHANNEL        0    // 0 = OMNI
+#define AKAI_REMAP          1    // 1: CC1..CC8 = the 8 knobs of an AKAI MPK mini (see dx7_params.h)
+#define MIDI_REALTIME       1    // real-time bytes are parsed out of the stream and ignored
+#define BEND_RANGE_SEMI     2.0f
+#define MIDI_SYSEX          1    // accept DX7 32-voice bank dumps (F0 43 0n 09 20 00 ...) from USB, USB host and the DIN input
+// ---- Audio shield: Waveshare Pico-Audio, two different boards -------------------
+// The two boards carry different DACs and different pinouts, and software cannot tell
+// them apart. The wrong setting is not "a bit off", it is SILENT. Check the PCB.
+//
+//   1 = "Rev2.1" (printed on the board)             CS4344 DAC   DIN GP22, BCK GP26, LRCK GP27
+//       The board all development so far used. Default.
+//   0 = "Initial Version" (no revision marking)     PCM5101A DAC DIN GP26, BCK GP27, LRCK GP28
+//
+// Switch without editing this file:  build_flags = ... -DAUDIO_BOARD_REV2_1=0
+//
+// The setting selects the pins AND the PIO program (see audio_driver.h):
+//   1  audio_pio.pio      BCK = 64 x fs, each data bit held for two BCK periods. The Rev2.1 accepts
+//                         this; it is the organ's proven program.
+//   0  audio_pio_i2s.pio  standard I2S, BCK = 32 x fs, one data bit per BCK. The PCM5101A clocks DIN
+//                         in on EVERY rising BCK edge (TI SLAS859C) and needs this. The Rev2.1
+//                         program sounds badly distorted on it. It generates its own system clock
+//                         from BCK (no MCLK needed).
+#ifndef AUDIO_BOARD_REV2_1
+#define AUDIO_BOARD_REV2_1  1
+#endif
+#if AUDIO_BOARD_REV2_1
+  #define AUDIO_BOARD_NAME        "Rev2.1 (CS4344)"
+  #define AUDIO_DATA_PIN          22   // DIN
+  #define AUDIO_CLOCK_PIN_BASE    26   // BCK = GP26, LRCK = GP27 (automatic)
+#else
+  #define AUDIO_BOARD_NAME        "Initial Version (PCM5101A)"
+  #define AUDIO_DATA_PIN          26   // DIN
+  #define AUDIO_CLOCK_PIN_BASE    27   // BCK = GP27, LRCK = GP28 (automatic)
+#endif
+
+// ---- Audio -------------------------------------------------
+#define SAMPLE_RATE    44100
+#define BUFFER_FRAMES  256
+#define CONTROL_DIV    16        // envelopes, LFO and operator levels advance once per 16 samples (2756 Hz); levels are interpolated per sample
+
+// ---- Voicing -------------------------------------------------
+#define OUT_GAIN        0.30f    // one carrier at full level and volume 127 = 0.30 of full scale (the limiter handles chords)
+
+// ---- Misc --------------------------------------------------
+#define LED_PIN  25
+#define HOT      __attribute__((always_inline)) inline
+
+// ---- AKAI MPK mini knobs K1..K8 (factory program: CC1..CC8) -
+#define AKAI_K1   1   // -> mod (vibrato depth; also the real mod wheel)
+#define AKAI_K2   2   // -> bright
+#define AKAI_K3   3   // -> attack
+#define AKAI_K4   4   // -> release
+#define AKAI_K5   5   // -> feedback
+#define AKAI_K6   6   // -> tune
+#define AKAI_K7   7   // -> volume
+#define AKAI_K8   8   // -> velocity sensitivity

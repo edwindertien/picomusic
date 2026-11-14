@@ -1,0 +1,14 @@
+.pio/
+.vscode/
+tests/.build/
+__pycache__/
+*.pyc
+*.o
+*.elf
+*.uf2
+tests/*/build_*
+.DS_Store
+tools/piano/samples/jRhodes3c
+tools/piano/samples/salamander-flac
+tools/piano/samples/stevie-clavinet
+

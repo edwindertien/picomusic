@@ -1,0 +1,1 @@
+The sample files are not shipped. Fetch them with tools/piano/fetch_salamander.sh (lossless grand), tools/piano/fetch_rhodes.sh and tools/piano/fetch_clavinet.sh (read the licence each script prints).

@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>picomusic drum editor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { --bg:#0e0e11; --panel:#17171c; --line:#2b2b33; --fg:#e8e6df; --dim:#8c8a82; --gold:#d4a937; --red:#d0584a; --green:#6cc070; --blue:#6aa8d8; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:13px/1.4 system-ui, sans-serif; }
+  header { display:flex; gap:10px; align-items:center; padding:8px 14px; background:var(--panel); border-bottom:2px solid var(--gold); flex-wrap:wrap; }
+  header h1 { font-size:15px; margin:0 8px 0 0; color:var(--gold); letter-spacing:.5px; }
+  input, select, button { background:#202027; color:var(--fg); border:1px solid var(--line); border-radius:4px; padding:4px 7px; font:inherit; }
+  input[type=number] { width:62px; } input[type=text] { width:170px; } input[type=range] { padding:0; width:100%; accent-color:var(--gold); }
+  button { cursor:pointer; } button:hover { border-color:var(--gold); } button.primary { background:#3a3012; border-color:var(--gold); color:var(--gold); }
+  button.small { padding:1px 6px; font-size:11px; } button:disabled { opacity:.4; cursor:default; } button.on { background:#3a3012; border-color:var(--gold); color:var(--gold); }
+  #status { margin-left:auto; color:var(--dim); max-width:46%; text-align:right; } #status.err { color:var(--red); } #status.ok { color:var(--green); }
+  .tabs { display:flex; gap:4px; padding:8px 14px 0; } .tabs button { border-bottom-left-radius:0; border-bottom-right-radius:0; }
+  main { padding:0 14px 30px; } section { background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:10px; margin:0 0 12px; }
+  h2 { font-size:12px; text-transform:uppercase; letter-spacing:1px; color:var(--dim); margin:0 0 8px; }
+  .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:5px 0; } .row label { color:var(--dim); } .hint { color:var(--dim); font-size:12px; }
+  .slots { display:grid; grid-template-columns:repeat(8, 1fr); gap:4px; } .slots button { text-align:left; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; padding:3px 6px; }
+  .slots button.filled { border-color:#4a4a58; } .slots button.cur { background:#3a3012; border-color:var(--gold); color:var(--gold); } .slots small { color:var(--dim); margin-right:4px; }
+  table.grid { border-collapse:separate; border-spacing:2px; user-select:none; } table.grid td { padding:0; }
+  td.lab { width:92px; font-size:12px; color:var(--dim); white-space:nowrap; padding-right:6px; } td.lab b { color:var(--fg); display:inline-block; width:24px; }
+  td.step { width:34px; height:26px; border-radius:3px; background:#202027; cursor:pointer; text-align:center; font-size:10px; color:#0008; border:1px solid #2b2b33; }
+  td.step.beat { background:#26262e; } td.step.l1 { background:#6a5a22; } td.step.l2 { background:#c9a232; } td.step.l3 { background:#ff7a3c; } td.step.off { opacity:.25; } td.step.now { outline:2px solid var(--blue); }
+  td.step.l1::after { content:"·"; color:#fffb; } td.step.l3::after { content:"▲"; color:#fffc; font-size:9px; }
+  .legend span { margin-right:12px; } .sw { display:inline-block; width:12px; height:12px; border-radius:2px; vertical-align:-2px; margin-right:3px; }
+  .song { display:flex; flex-wrap:wrap; gap:4px; } .song div { border:1px solid var(--line); border-radius:4px; padding:3px 4px 3px 8px; background:#202027; } .song div button { margin-left:4px; padding:0 5px; }
+  table.kit { border-collapse:collapse; width:100%; } table.kit td, table.kit th { padding:3px 5px; border-top:1px solid #222; text-align:left; } table.kit th { color:var(--dim); font-weight:500; font-size:11px; border:0; }
+  table.kit td.v { width:15%; } table.kit td.v span { display:inline-block; width:26px; text-align:right; color:var(--dim); font-size:11px; }
+  table.kit td.v .rg { display:flex; gap:4px; align-items:center; } table.kit select { max-width:150px; }
+  .cols { display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:10px; } .card { border:1px solid var(--line); border-radius:5px; padding:6px 8px; background:#1b1b21; }
+  .card h3 { margin:0 0 2px; font-size:13px; } .card .tr { font:11px/1.25 ui-monospace, monospace; color:var(--dim); white-space:pre; overflow:hidden; margin:3px 0; }
+  .pill { display:inline-block; padding:0 6px; border-radius:9px; font-size:11px; background:#26262e; color:var(--dim); } .pill.user { background:#16301b; color:var(--green); }
+  .hide { display:none; } .modal { position:fixed; inset:0; background:#000a; display:none; align-items:center; justify-content:center; z-index:9; } .modal.open { display:flex; }
+  .modal .box { background:var(--panel); border:1px solid var(--gold); border-radius:8px; padding:14px; width:min(460px, 94vw); } .modal .box .row label { width:90px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>picomusic drum editor</h1>
+  <input type="text" id="docName" title="project name" placeholder="project name">
+  <label class="hint">BPM</label><input type="number" id="bpm" min="30" max="300" step="1">
+  <label class="hint">swing</label><input type="range" id="swing" min="0" max="127" style="width:90px"><span id="swingv" class="hint"></span>
+  <label class="hint">drive</label><input type="range" id="drive" min="0" max="127" style="width:70px">
+  <label class="hint">vol</label><input type="range" id="vol" min="0" max="127" style="width:70px">
+  <button class="primary" id="playPat">▶ Pattern</button><button id="playSong">▶ Song</button><button id="stopBtn">■ Stop</button>
+  <label class="hint"><input type="checkbox" id="loop" checked> loop</label>
+  <button id="undoBtn" title="Ctrl+Z">↶ Undo</button>
+  <span id="status"></span>
+</header>
+<div class="tabs" id="tabs"></div>
+<main>
+  <div id="tab-pattern">
+    <section><h2>Patterns (the machine holds 16)</h2><div class="slots" id="slots"></div></section>
+    <section>
+      <div class="row"><label>Name</label><input type="text" id="patName"><label>Length</label><input type="number" id="patLen" min="1" max="16"><span class="hint">steps (16 = one bar of 16ths)</span>
+        <button id="patClear">Clear</button><button id="patCopy">Copy to…</button><button id="patLeft">◀ Rotate</button><button id="patRight">Rotate ▶</button><button id="patSave">Save to my library…</button><button id="patLib">Library…</button></div>
+      <table class="grid" id="grid"></table>
+      <div class="legend hint" style="margin-top:6px"><span><i class="sw" style="background:#6a5a22"></i>ghost</span><span><i class="sw" style="background:#c9a232"></i>normal</span><span><i class="sw" style="background:#ff7a3c"></i>accent</span>
+        Click: off → normal → accent → ghost → off. Drag to paint, right-click clears. Click a label to hear the drum.</div>
+    </section>
+  </div>
+  <div id="tab-song" class="hide">
+    <section><h2>Song chain (up to 32 patterns, played in order)</h2>
+      <div class="row"><label><input type="checkbox" id="songMode"> start in song mode</label><span class="hint">The pattern buttons below append to the chain.</span></div>
+      <div class="slots" id="songAdd" style="margin-bottom:8px"></div><div class="song" id="songList"></div>
+      <div class="row"><button id="songClear">Clear chain</button><span id="songInfo" class="hint"></span></div></section>
+  </div>
+  <div id="tab-kit" class="hide">
+    <section><h2>Kit and sounds: five settings per drum</h2>
+      <div class="row"><label>Kit preset</label><select id="kitSel"></select><button id="kitApply">Apply</button><button id="kitHear">Hear the kit</button><button id="kitReset">Factory kit</button><button id="kitSave">Save kit to my library…</button></div>
+      <table class="kit" id="kit"></table>
+      <div class="hint">LEVEL is the volume of the drum, TUNE 64 = nominal pitch, DECAY and TONE depend on the drum (see the README, drum machine chapter), PAN 64 = centre. Change a slider and the drum plays.</div></section>
+  </div>
+  <div id="tab-library" class="hide">
+    <section><h2>Pattern library</h2><div class="row"><label>Category</label><select id="libCat"></select><label>Search</label><input type="text" id="libQ"><span class="hint" id="libCount"></span></div><div class="cols" id="libPats"></div></section>
+    <section><h2>Kit library</h2><div class="cols" id="libKits"></div></section>
+    <section><h2>Sound library</h2><div class="row"><label>Drum</label><select id="libInst"></select><span class="hint">Applies to the drum shown here, in your current kit.</span></div><div class="cols" id="libSounds"></div></section>
+  </div>
+  <div id="tab-machine" class="hide">
+    <section><h2>The machine (USB)</h2>
+      <div class="row"><label>Port</label><select id="port"></select><button id="portRefresh">Refresh</button>
+        <button class="primary" id="devFetch">Read from machine</button><button class="primary" id="devSend">Send to machine</button>
+        <label class="hint"><input type="checkbox" id="devFlash"> also save to flash</label></div>
+      <div class="hint">Connect the Pico's own USB port (the drum firmware must be running; close any serial monitor first). Sending stops the machine first, because the firmware refuses a new state while playing. Sending replaces the machine's kit, 16 patterns, song and settings in RAM; "save to flash" keeps it over a power cycle.
+        <span id="noserial" class="hide"> <b style="color:#e0b050">pyserial is not installed: python3 -m pip install pyserial</b></span></div>
+      <div class="row"><button id="devHit">Test: hit the selected drum on the machine</button><span class="hint">(uses the instrument row last clicked)</span></div></section>
+    <section><h2>Machine settings stored in the image</h2>
+      <div class="row"><label><input type="checkbox" id="padGm"> pads: General MIDI map</label><label>pad base note</label><input type="number" id="padBase" min="0" max="112"><label><input type="checkbox" id="extSync"> follow MIDI clock</label></div></section>
+    <section><h2>Files</h2>
+      <div class="row"><button id="projSave">Save project (tools/drums/projects)</button><select id="projSel"></select><button id="projLoad">Open</button></div>
+      <div class="row"><button id="dlJson">Download .json</button><button id="dlBin">Download machine image (.bin)</button><label>Open file <input type="file" id="fileIn" accept=".json,.bin"></label></div>
+      <div class="hint">The image (.bin, 4247 bytes) is exactly what the machine keeps in flash, so it can also be copied to the LittleFS partition as /drums.bin. Pattern and kit <i>names</i> exist only in the .json project: the machine has no names.</div></section>
+    <section><h2>New</h2><div class="row"><button id="newDoc">New empty project</button><button id="demoDoc">Start from the factory demo</button></div></section>
+  </div>
+</main>
+<audio id="audio"></audio>
+<div class="modal" id="modal"><div class="box"><h2 id="mTitle">Save</h2><div class="row"><label>Name</label><input type="text" id="mName" style="flex:1"></div><div class="row" id="mCatRow"><label>Category</label><input type="text" id="mCat" value="user"></div>
+  <div class="row"><label>Note</label><input type="text" id="mNote" style="flex:1"></div><div class="row"><button class="primary" id="mOk">Save</button><button id="mCancel">Cancel</button></div></div></div>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+let META = null, doc = null, tab = "pattern", cur = 0, selInst = 0, undo = [], audioUrl = null, playTok = 0, modalCb = null;
+const STEPS = 16, NEXT = [2, 0, 3, 1];     // off->normal->accent->ghost->off, indexed by the current level
+
+function status(msg, cls) { const s = $("status"); s.textContent = msg; s.className = cls || ""; }
+async function api(path, opt) {
+  const r = await fetch(path, opt); const ct = r.headers.get("content-type") || "";
+  if (!r.ok) { let m = r.status + ""; try { m = (await r.json()).error || m; } catch (e) {} throw new Error(m); }
+  return ct.includes("json") ? r.json() : r;
+}
+const post = (p, b) => api(p, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) });
+const clone = o => JSON.parse(JSON.stringify(o));
+const clamp = (v, a, b) => Math.max(a, Math.min(b, Math.round(v)));
+
+// ---------------------------------------------------------------- document
+function newDoc(name) {
+  return { name: name || "new", bpm: 120, swing: 0, vol: 100, drive: 0, songMode: false, extSync: false, padGm: false, padBase: 36, selPat: 0,
+           kit: clone(META.default_kit), patterns: Array.from({ length: 16 }, (_, i) => ({ name: "pattern " + (i + 1), len: 16, tracks: {} })), song: [] };
+}
+function checkpoint() { undo.push(JSON.stringify(doc)); if (undo.length > 60) undo.shift(); }
+function changed() { try { localStorage.setItem("drumconf.doc", JSON.stringify(doc)); } catch (e) {} }
+function doUndo() { if (!undo.length) return; doc = JSON.parse(undo.pop()); renderAll(); changed(); }
+function trackOf(p, lab) { return (doc.patterns[p].tracks[lab] || ".".repeat(STEPS)); }
+function setCell(p, lab, s, lvl) {
+  const t = trackOf(p, lab).split(""); t[s] = lvl ? String(lvl) : "."; const str = t.join("");
+  if (/^\.*$/.test(str)) delete doc.patterns[p].tracks[lab]; else doc.patterns[p].tracks[lab] = str;
+}
+function isFilled(p) { return Object.keys(doc.patterns[p].tracks).length > 0; }
+
+// ---------------------------------------------------------------- audio
+async function renderAudio(body, fname) {
+  const r = await api("/api/render", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ doc }, body)) });
+  const info = r.headers.get("X-Render") || ""; const blob = await r.blob(); return { url: URL.createObjectURL(blob), info };
+}
+async function play(body, loop) {
+  const tok = ++playTok; status("rendering with the firmware engine…");
+  try {
+    const { url, info } = await renderAudio(body);
+    if (tok !== playTok) { URL.revokeObjectURL(url); return; }
+    const a = $("audio"); a.pause(); if (audioUrl) URL.revokeObjectURL(audioUrl); audioUrl = url; a.src = url; a.loop = !!loop; await a.play();
+    const m = /peak=(\d+);secs=([\d.]+);clipped=(\d+)/.exec(info); status(m ? "playing " + m[2] + " s, peak " + (20 * Math.log10(Math.max(1, +m[1]) / 32767)).toFixed(1) + " dBFS" + (+m[3] ? ", CLIPPED " + m[3] + " samples" : "") : "playing", +(m && m[3]) ? "err" : "ok");
+  } catch (e) { status(e.message, "err"); }
+}
+function stop() { playTok++; const a = $("audio"); a.pause(); status(""); }
+let hitTimer = null;
+function hit(inst) { selInst = inst; clearTimeout(hitTimer); hitTimer = setTimeout(() => play({ mode: "hit", inst, vel: 110 }, false), 60); }
+const playPattern = () => play({ mode: "pattern", pat: cur, bars: $("loop").checked ? 2 : 2, loop: $("loop").checked }, $("loop").checked);
+const playSong = () => { if (!doc.song.length) return status("the song chain is empty (Song tab)", "err"); play({ mode: "song" }, $("loop").checked); };
+
+// ---------------------------------------------------------------- pattern tab
+function renderSlots() {
+  const html = doc.patterns.map((p, i) => `<button class="${i === cur ? "cur" : ""} ${isFilled(i) ? "filled" : ""}" data-p="${i}" title="${p.name}"><small>${i + 1}</small>${p.name}</button>`).join("");
+  $("slots").innerHTML = html; $("songAdd").innerHTML = html;
+  $("slots").querySelectorAll("button").forEach(b => b.onclick = () => { cur = +b.dataset.p; doc.selPat = cur; renderPattern(); renderSlots(); });
+  $("songAdd").querySelectorAll("button").forEach(b => b.onclick = () => { if (doc.song.length >= 32) return status("the chain holds 32 patterns", "err"); checkpoint(); doc.song.push(+b.dataset.p); renderSong(); changed(); });
+}
+function renderPattern() {
+  const p = doc.patterns[cur]; $("patName").value = p.name; $("patLen").value = p.len;
+  let h = "";
+  META.inst.forEach((lab, i) => {
+    h += `<tr><td class="lab"><span class="lbl" data-i="${i}" style="cursor:pointer" title="click to hear"><b>${lab}</b>${META.inst_name[i]}</span></td>`;
+    const t = trackOf(cur, lab);
+    for (let s = 0; s < STEPS; s++) { const l = t[s] === "." ? 0 : +t[s]; h += `<td class="step ${s % 4 === 0 ? "beat" : ""} ${l ? "l" + l : ""} ${s >= p.len ? "off" : ""}" data-i="${i}" data-s="${s}"></td>`; }
+    h += "</tr>";
+  });
+  $("grid").innerHTML = h;
+  $("grid").querySelectorAll(".lbl").forEach(e => e.onclick = () => hit(+e.dataset.i));
+  let paint = null;
+  const apply = td => { const i = +td.dataset.i, s = +td.dataset.s; if (paint === null) return; const cl = META.inst[i]; const t = trackOf(cur, cl); const have = t[s] === "." ? 0 : +t[s]; if (have === paint) return; setCell(cur, cl, s, paint); const l = paint; td.className = "step " + (s % 4 === 0 ? "beat" : "") + (l ? " l" + l : "") + (s >= p.len ? " off" : ""); };
+  $("grid").onmousedown = e => { const td = e.target.closest("td.step"); if (!td) return; e.preventDefault(); checkpoint(); const i = +td.dataset.i, s = +td.dataset.s; const t = trackOf(cur, META.inst[i]); const have = t[s] === "." ? 0 : +t[s]; paint = e.button === 2 ? 0 : NEXT[have]; apply(td); if (paint) selInst = i; };
+  $("grid").onmouseover = e => { if (paint === null) return; const td = e.target.closest("td.step"); if (td) apply(td); };
+  $("grid").oncontextmenu = e => e.preventDefault();
+  window.onmouseup = () => { if (paint !== null) { paint = null; renderSlots(); changed(); } };
+}
+$("patName").onchange = e => { checkpoint(); doc.patterns[cur].name = e.target.value.slice(0, 40); renderSlots(); changed(); };
+$("patLen").onchange = e => { checkpoint(); doc.patterns[cur].len = clamp(e.target.value, 1, 16); renderPattern(); changed(); };
+$("patClear").onclick = () => { checkpoint(); doc.patterns[cur].tracks = {}; doc.patterns[cur].len = 16; renderPattern(); renderSlots(); changed(); };
+$("patCopy").onclick = () => { const to = parseInt(prompt("Copy this pattern to slot (1-16):", String(cur + 2 > 16 ? 1 : cur + 2)), 10); if (!(to >= 1 && to <= 16) || to - 1 === cur) return; checkpoint(); doc.patterns[to - 1] = clone(doc.patterns[cur]); renderSlots(); changed(); status("copied to slot " + to, "ok"); };
+function rotate(d) { checkpoint(); const p = doc.patterns[cur]; for (const k of Object.keys(p.tracks)) { const t = p.tracks[k].slice(0, p.len); const r = d > 0 ? t.slice(-1) + t.slice(0, -1) : t.slice(1) + t.slice(0, 1); p.tracks[k] = (r + p.tracks[k].slice(p.len)).slice(0, 16); } renderPattern(); changed(); }
+$("patLeft").onclick = () => rotate(-1); $("patRight").onclick = () => rotate(1);
+$("patLib").onclick = () => setTab("library");
+$("patSave").onclick = () => ask("Save pattern to my library", doc.patterns[cur].name, true, async (name, cat, note) => {
+  const p = doc.patterns[cur]; const j = await post("/api/library/patterns", { entry: { name, category: cat, note, bpm: doc.bpm, swing: doc.swing, len: p.len, tracks: p.tracks } });
+  META.library = j.library; renderLibrary(); status("saved to your library: " + name, "ok"); });
+
+// ---------------------------------------------------------------- song tab
+function renderSong() {
+  $("songList").innerHTML = doc.song.map((p, i) => `<div>${i + 1}: <b>${p + 1}</b> <span class="hint">${doc.patterns[p].name}</span><button class="small" data-i="${i}">×</button></div>`).join("") || '<span class="hint">empty: click patterns above to build the chain</span>';
+  $("songList").querySelectorAll("button").forEach(b => b.onclick = () => { checkpoint(); doc.song.splice(+b.dataset.i, 1); renderSong(); changed(); });
+  $("songMode").checked = doc.songMode;
+  const steps = doc.song.reduce((a, p) => a + doc.patterns[p].len, 0); $("songInfo").textContent = doc.song.length ? doc.song.length + " patterns, " + (steps * 15 / doc.bpm).toFixed(1) + " s at " + doc.bpm + " BPM" : "";
+}
+$("songClear").onclick = () => { checkpoint(); doc.song = []; renderSong(); changed(); };
+$("songMode").onchange = e => { doc.songMode = e.target.checked; changed(); };
+
+// ---------------------------------------------------------------- kit tab
+function renderKit() {
+  let h = "<tr><th></th><th>sound preset</th>" + META.fields.map(f => `<th>${f}</th>`).join("") + "<th></th></tr>";
+  META.inst.forEach((lab, i) => {
+    const opts = META.library.sounds.filter(s => s.inst === lab).map((s, k) => `<option value="${META.library.sounds.indexOf(s)}">${s.name}${s.user ? " ★" : ""}</option>`).join("");
+    h += `<tr><td><button class="small" data-hit="${i}">▶</button> <b>${lab}</b> <span class="hint">${META.inst_name[i]}</span></td><td><select data-pre="${i}"><option value="">—</option>${opts}</select> <button class="small" data-save="${i}" title="save this drum's setting to my library">save…</button></td>`;
+    for (let k = 0; k < 5; k++) h += `<td class="v"><div class="rg"><input type="range" min="0" max="127" value="${doc.kit[i][k]}" data-i="${i}" data-k="${k}"><span>${doc.kit[i][k]}</span></div></td>`;
+    h += `<td><button class="small" data-reset="${i}">factory</button></td></tr>`;
+  });
+  $("kit").innerHTML = h;
+  $("kit").querySelectorAll("input[type=range]").forEach(r => { r.oninput = () => { r.nextElementSibling.textContent = r.value; doc.kit[+r.dataset.i][+r.dataset.k] = +r.value; };
+    r.onchange = () => { changed(); hit(+r.dataset.i); }; r.onmousedown = () => checkpoint(); });
+  $("kit").querySelectorAll("[data-hit]").forEach(b => b.onclick = () => hit(+b.dataset.hit));
+  $("kit").querySelectorAll("[data-reset]").forEach(b => b.onclick = () => { checkpoint(); doc.kit[+b.dataset.reset] = clone(META.default_kit[+b.dataset.reset]); renderKit(); changed(); hit(+b.dataset.reset); });
+  $("kit").querySelectorAll("select[data-pre]").forEach(s => s.onchange = () => { if (s.value === "") return; checkpoint(); doc.kit[+s.dataset.pre] = clone(META.library.sounds[+s.value].values); renderKit(); changed(); hit(+s.dataset.pre); });
+  $("kit").querySelectorAll("[data-save]").forEach(b => b.onclick = () => { const i = +b.dataset.save; ask("Save " + META.inst_name[i] + " setting", META.inst[i] + " mine", false, async (name, cat, note) => {
+    const j = await post("/api/library/sounds", { entry: { name, inst: META.inst[i], values: doc.kit[i], note } }); META.library = j.library; renderKit(); renderLibrary(); status("saved: " + name, "ok"); }); });
+  const ks = $("kitSel"); ks.innerHTML = META.library.kits.map((k, i) => `<option value="${i}">${k.name}${k.user ? " ★" : ""}</option>`).join("");
+}
+$("kitApply").onclick = () => { const k = META.library.kits[+$("kitSel").value]; if (!k) return; checkpoint(); doc.kit = clone(k.kit); renderKit(); changed(); status("kit: " + k.name, "ok"); };
+$("kitHear").onclick = () => play({ mode: "kit", vel: 105 }, false);
+$("kitReset").onclick = () => { checkpoint(); doc.kit = clone(META.default_kit); renderKit(); changed(); };
+$("kitSave").onclick = () => ask("Save kit to my library", doc.name + " kit", false, async (name, cat, note) => { const j = await post("/api/library/kits", { entry: { name, kit: doc.kit, note } }); META.library = j.library; renderKit(); renderLibrary(); status("saved kit: " + name, "ok"); });
+
+// ---------------------------------------------------------------- library tab
+function miniGrid(p) { return META.inst.filter(l => p.tracks[l]).map(l => l + " " + p.tracks[l].slice(0, p.len)).join("\n"); }
+function renderLibrary() {
+  const L = META.library, cats = [...new Set(L.patterns.map(p => p.category))].sort();
+  const cs = $("libCat"), keep = cs.value; cs.innerHTML = '<option value="">all</option>' + cats.map(c => `<option>${c}</option>`).join(""); cs.value = keep;
+  const q = $("libQ").value.toLowerCase(), c = cs.value;
+  const items = L.patterns.map((p, i) => [p, i]).filter(([p]) => (!c || p.category === c) && (!q || (p.name + " " + p.category + " " + (p.note || "")).toLowerCase().includes(q)));
+  $("libCount").textContent = items.length + " of " + L.patterns.length;
+  $("libPats").innerHTML = items.map(([p, i]) => `<div class="card"><h3>${p.name} <span class="pill ${p.user ? "user" : ""}">${p.category}</span> <span class="pill">${p.bpm} BPM${p.swing ? ", swing " + Math.round(50 + 25 * p.swing / 127) + "%" : ""}${p.len !== 16 ? ", " + p.len + " steps" : ""}</span></h3>
+    <div class="tr">${miniGrid(p)}</div><div class="hint">${p.note || ""}</div><div class="row"><button class="small" data-aud="${i}">▶ hear</button><button class="small" data-load="${i}">Load into slot ${cur + 1}</button><label class="hint"><input type="checkbox" data-tempo="${i}" checked> tempo & swing</label>${p.user ? `<button class="small" data-del="${i}">delete</button>` : ""}</div></div>`).join("");
+  $("libPats").querySelectorAll("[data-aud]").forEach(b => b.onclick = () => { const p = L.patterns[+b.dataset.aud]; const d = clone(doc); d.bpm = p.bpm; d.swing = p.swing; d.patterns[0] = { name: p.name, len: p.len, tracks: p.tracks }; d.selPat = 0; d.songMode = false;
+    play2(d, { mode: "pattern", pat: 0, bars: 2, loop: $("loop").checked }, $("loop").checked); });
+  $("libPats").querySelectorAll("[data-load]").forEach(b => b.onclick = () => { const i = +b.dataset.load, p = L.patterns[i]; checkpoint(); doc.patterns[cur] = { name: p.name, len: p.len, tracks: clone(p.tracks) };
+    if ($("libPats").querySelector(`[data-tempo="${i}"]`).checked) { doc.bpm = p.bpm; doc.swing = p.swing; } renderAll(); changed(); status("loaded \"" + p.name + "\" into slot " + (cur + 1), "ok"); });
+  $("libPats").querySelectorAll("[data-del]").forEach(b => b.onclick = async () => { const p = L.patterns[+b.dataset.del]; if (!confirm("Delete \"" + p.name + "\" from your library?")) return; try { META.library = (await api("/api/library/patterns?name=" + encodeURIComponent(p.name), { method: "DELETE" })).library; renderLibrary(); } catch (e) { status(e.message, "err"); } });
+  $("libKits").innerHTML = L.kits.map((k, i) => `<div class="card"><h3>${k.name} ${k.user ? '<span class="pill user">mine</span>' : ""}</h3><div class="hint">${k.note || ""}</div><div class="row"><button class="small" data-kaud="${i}">▶ hear</button><button class="small" data-kapp="${i}">Apply to my kit</button>${k.user ? `<button class="small" data-kdel="${i}">delete</button>` : ""}</div></div>`).join("");
+  $("libKits").querySelectorAll("[data-kaud]").forEach(b => b.onclick = () => { const d = clone(doc); d.kit = clone(L.kits[+b.dataset.kaud].kit); play2(d, { mode: "kit", vel: 105 }, false); });
+  $("libKits").querySelectorAll("[data-kapp]").forEach(b => b.onclick = () => { checkpoint(); doc.kit = clone(L.kits[+b.dataset.kapp].kit); renderKit(); changed(); status("kit applied", "ok"); });
+  $("libKits").querySelectorAll("[data-kdel]").forEach(b => b.onclick = async () => { const k = L.kits[+b.dataset.kdel]; if (!confirm("Delete \"" + k.name + "\"?")) return; META.library = (await api("/api/library/kits?name=" + encodeURIComponent(k.name), { method: "DELETE" })).library; renderLibrary(); renderKit(); });
+  const li = $("libInst"); if (!li.options.length) li.innerHTML = META.inst.map((l, i) => `<option value="${l}">${l} ${META.inst_name[i]}</option>`).join("");
+  const ins = li.value || META.inst[0];
+  $("libSounds").innerHTML = L.sounds.map((s, i) => [s, i]).filter(([s]) => s.inst === ins).map(([s, i]) => `<div class="card"><h3>${s.name} ${s.user ? '<span class="pill user">mine</span>' : ""}</h3><div class="hint">${s.values.map((v, k) => META.fields[k] + " " + v).join(" · ")}${s.note ? "<br>" + s.note : ""}</div>
+    <div class="row"><button class="small" data-saud="${i}">▶ hear</button><button class="small" data-sapp="${i}">Apply</button>${s.user ? `<button class="small" data-sdel="${i}">delete</button>` : ""}</div></div>`).join("");
+  const idx = META.inst.indexOf(ins);
+  $("libSounds").querySelectorAll("[data-saud]").forEach(b => b.onclick = () => { const d = clone(doc); d.kit[idx] = clone(L.sounds[+b.dataset.saud].values); play2(d, { mode: "hit", inst: idx, vel: 110 }, false); });
+  $("libSounds").querySelectorAll("[data-sapp]").forEach(b => b.onclick = () => { checkpoint(); doc.kit[idx] = clone(L.sounds[+b.dataset.sapp].values); renderKit(); changed(); hit(idx); });
+  $("libSounds").querySelectorAll("[data-sdel]").forEach(b => b.onclick = async () => { const s = L.sounds[+b.dataset.sdel]; if (!confirm("Delete \"" + s.name + "\"?")) return; META.library = (await api("/api/library/sounds?name=" + encodeURIComponent(s.name) + "&inst=" + s.inst, { method: "DELETE" })).library; renderLibrary(); renderKit(); });
+}
+async function play2(d, body, loop) { const keep = doc; doc = d; try { await play(body, loop); } finally { doc = keep; } }
+$("libCat").onchange = renderLibrary; $("libQ").oninput = renderLibrary; $("libInst").onchange = renderLibrary;
+
+// ---------------------------------------------------------------- machine tab
+async function refreshPorts() {
+  try { const j = await api("/api/device/ports"); $("port").innerHTML = j.ports.map(p => `<option value="${p.port}">${p.port} ${p.desc}${p.pico ? " ★" : ""}</option>`).join("") || "<option value=''>no serial ports found</option>"; $("noserial").classList.add("hide"); }
+  catch (e) { $("port").innerHTML = "<option value=''>unavailable</option>"; if (/pyserial/.test(e.message)) $("noserial").classList.remove("hide"); else status(e.message, "err"); }
+}
+$("portRefresh").onclick = refreshPorts;
+$("devFetch").onclick = async () => { try { status("reading from the machine…"); const j = await post("/api/device/fetch", { port: $("port").value }); checkpoint(); const nm = doc.name; doc = j.doc; doc.name = nm; cur = doc.selPat; renderAll(); changed(); status("read the machine's state (pattern and kit names are not stored on the machine)", "ok"); } catch (e) { status(e.message, "err"); } };
+$("devSend").onclick = async () => { try { status("sending…"); await post("/api/device/send", { port: $("port").value, doc, flash: $("devFlash").checked }); status("sent to the machine" + ($("devFlash").checked ? " and saved to flash" : ""), "ok"); } catch (e) { status(e.message, "err"); } };
+$("devHit").onclick = async () => { try { await post("/api/device/hit", { port: $("port").value, inst: selInst, vel: 110 }); } catch (e) { status(e.message, "err"); } };
+$("padGm").onchange = e => { doc.padGm = e.target.checked; changed(); }; $("extSync").onchange = e => { doc.extSync = e.target.checked; changed(); };
+$("padBase").onchange = e => { doc.padBase = clamp(e.target.value, 0, 112); changed(); };
+async function refreshProjects() { const j = await api("/api/project"); $("projSel").innerHTML = j.projects.map(p => `<option>${p}</option>`).join("") || "<option value=''>none yet</option>"; }
+$("projSave").onclick = async () => { try { const j = await post("/api/project", { doc }); $("projSel").innerHTML = j.projects.map(p => `<option>${p}</option>`).join(""); $("projSel").value = j.doc.name; status("saved as tools/drums/projects/" + j.doc.name + ".json", "ok"); } catch (e) { status(e.message, "err"); } };
+$("projLoad").onclick = async () => { if (!$("projSel").value) return; try { checkpoint(); doc = (await api("/api/project/" + encodeURIComponent($("projSel").value))).doc; cur = doc.selPat; renderAll(); changed(); status("opened " + doc.name, "ok"); } catch (e) { status(e.message, "err"); } };
+function download(blob, name) { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
+$("dlJson").onclick = () => download(new Blob([JSON.stringify(doc, null, 1)], { type: "application/json" }), (doc.name || "drums") + ".json");
+$("dlBin").onclick = async () => { try { const r = await api("/api/image", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ doc }) }); download(await r.blob(), (doc.name || "drums") + ".bin"); } catch (e) { status(e.message, "err"); } };
+$("fileIn").onchange = async e => { const f = e.target.files[0]; if (!f) return; try { checkpoint();
+    if (f.name.endsWith(".bin")) doc = (await api("/api/open_image?name=" + encodeURIComponent(f.name.replace(/\.bin$/, "")), { method: "POST", body: await f.arrayBuffer() })).doc;
+    else doc = (await post("/api/validate", { doc: JSON.parse(await f.text()) })).doc;
+    cur = doc.selPat; renderAll(); changed(); status("opened " + f.name, "ok"); } catch (err) { status(err.message, "err"); } e.target.value = ""; };
+$("newDoc").onclick = () => { if (!confirm("Start a new empty project? (Undo can bring the old one back.)")) return; checkpoint(); doc = newDoc("new"); cur = 0; renderAll(); changed(); };
+$("demoDoc").onclick = async () => { checkpoint(); const p = META.library.patterns, pick = n => p.find(x => x.name === n && !x.user); const names = ["Four on the floor", "Boom bap", "Electro (Planet Rock style)", "Latin mix"];
+  doc = newDoc("factory demo"); names.forEach((n, i) => { const q = pick(n); if (q) doc.patterns[i] = { name: q.name, len: q.len, tracks: clone(q.tracks) }; }); doc.song = [0, 0, 1, 1, 2, 2, 3, 3]; cur = 0; renderAll(); changed(); };
+
+// ---------------------------------------------------------------- header, tabs, modal
+function renderHeader() {
+  $("docName").value = doc.name; $("bpm").value = Math.round(doc.bpm * 100) / 100; $("swing").value = doc.swing; $("swingv").textContent = Math.round(50 + 25 * doc.swing / 127) + "%";
+  $("drive").value = doc.drive; $("vol").value = doc.vol; $("padGm").checked = doc.padGm; $("padBase").value = doc.padBase; $("extSync").checked = doc.extSync;
+}
+$("docName").onchange = e => { doc.name = e.target.value.slice(0, 60); changed(); };
+$("bpm").onchange = e => { checkpoint(); doc.bpm = Math.max(30, Math.min(300, +e.target.value || 120)); renderHeader(); renderSong(); changed(); };
+for (const k of ["swing", "drive", "vol"]) { $(k).onmousedown = checkpoint; $(k).oninput = e => { doc[k] = +e.target.value; if (k === "swing") $("swingv").textContent = Math.round(50 + 25 * doc.swing / 127) + "%"; changed(); }; }
+$("playPat").onclick = playPattern; $("playSong").onclick = playSong; $("stopBtn").onclick = stop; $("undoBtn").onclick = doUndo;
+document.addEventListener("keydown", e => { if ((e.ctrlKey || e.metaKey) && e.key === "z") { e.preventDefault(); doUndo(); } else if (e.key === " " && !/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) { e.preventDefault(); $("audio").paused ? playPattern() : stop(); } });
+const TABS = [["pattern", "Pattern"], ["song", "Song"], ["kit", "Kit & sounds"], ["library", "Library"], ["machine", "Machine & files"]];
+function setTab(t) { tab = t; for (const [k] of TABS) $("tab-" + k).classList.toggle("hide", k !== t); $("tabs").querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.t === t)); if (t === "library") renderLibrary(); if (t === "machine") { refreshPorts(); refreshProjects(); } }
+$("tabs").innerHTML = TABS.map(([k, n]) => `<button data-t="${k}">${n}</button>`).join(""); $("tabs").querySelectorAll("button").forEach(b => b.onclick = () => setTab(b.dataset.t));
+function ask(title, name, withCat, cb) {
+  $("mTitle").textContent = title; $("mName").value = name; $("mNote").value = ""; $("mCatRow").classList.toggle("hide", !withCat); $("modal").classList.add("open"); $("mName").focus(); modalCb = cb;
+}
+$("mCancel").onclick = () => $("modal").classList.remove("open");
+$("mOk").onclick = async () => { const cb = modalCb; $("modal").classList.remove("open"); try { await cb($("mName").value, $("mCat").value || "user", $("mNote").value); } catch (e) { status(e.message, "err"); } };
+function renderAll() { renderHeader(); renderSlots(); renderPattern(); renderSong(); renderKit(); if (tab === "library") renderLibrary(); }
+
+(async function init() {
+  try { META = await api("/api/meta"); } catch (e) { status("cannot reach the editor backend: " + e.message, "err"); return; }
+  try { const s = localStorage.getItem("drumconf.doc"); if (s) doc = (await post("/api/validate", { doc: JSON.parse(s) })).doc; } catch (e) { doc = null; }
+  if (!doc) { doc = newDoc("new"); const q = META.library.patterns.find(x => x.name === "Four on the floor"); if (q) doc.patterns[0] = { name: q.name, len: q.len, tracks: clone(q.tracks) }; doc.bpm = 124; }
+  cur = doc.selPat || 0; renderAll(); setTab("pattern");
+  if (!META.serial) $("noserial").classList.remove("hide");
+})();
+</script>
+</body>
+</html>

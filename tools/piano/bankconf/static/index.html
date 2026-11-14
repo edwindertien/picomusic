@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>picopiano bank configurator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { --bg:#0e0e11; --panel:#17171c; --line:#2b2b33; --fg:#e8e6df; --dim:#8c8a82; --gold:#d4a937; --red:#d0584a; --green:#6cc070; --blue:#6aa8d8; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:13px/1.4 system-ui, sans-serif; }
+  header { display:flex; gap:10px; align-items:center; padding:8px 14px; background:var(--panel); border-bottom:2px solid var(--gold); flex-wrap:wrap; }
+  header h1 { font-size:15px; margin:0 8px 0 0; color:var(--gold); letter-spacing:.5px; }
+  input, select, button { background:#202027; color:var(--fg); border:1px solid var(--line); border-radius:4px; padding:4px 7px; font:inherit; }
+  input[type=number] { width:64px; } input.note { width:52px; } input.file { width:230px; }
+  button { cursor:pointer; } button:hover { border-color:var(--gold); } button.primary { background:#3a3012; border-color:var(--gold); color:var(--gold); }
+  button.small { padding:1px 6px; } button:disabled { opacity:.4; cursor:default; }
+  #status { margin-left:auto; color:var(--dim); } #status.err { color:var(--red); } #status.ok { color:var(--green); }
+  #budget { margin:10px 14px 0; } #bar { display:flex; height:22px; background:#1c1c22; border:1px solid var(--line); border-radius:4px; overflow:hidden; }
+  #bar div.seg { height:100%; } #bar .over { background:repeating-linear-gradient(45deg,#a33,#a33 6px,#722 6px,#722 12px); }
+  #barlabel { color:var(--dim); margin-top:3px; }
+  main { display:grid; grid-template-columns:minmax(560px, 1.15fr) minmax(480px, 1fr); gap:12px; padding:10px 14px 30px; }
+  section { background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:10px; margin-bottom:12px; }
+  section h2 { font-size:12px; text-transform:uppercase; letter-spacing:1px; color:var(--dim); margin:0 0 8px; }
+  .tabs { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:8px; } .tabs button.active { background:#3a3012; border-color:var(--gold); color:var(--gold); }
+  table { border-collapse:collapse; width:100%; } th { text-align:left; color:var(--dim); font-weight:500; padding:2px 4px; font-size:11px; } td { padding:2px 3px; border-top:1px solid #222; white-space:nowrap; }
+  td.n { text-align:right; color:var(--dim); } tr.sel td { background:#1f1d12; }
+  .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:5px 0; } .row label { color:var(--dim); }
+  #kb { width:100%; height:176px; display:block; background:#0b0b0e; border:1px solid var(--line); border-radius:4px; cursor:pointer; }
+  .warn { color:#e0b050; padding:2px 0; } .warn.bad { color:var(--red); } .good { color:var(--green); }
+  details summary { cursor:pointer; color:var(--dim); } .grid16 { display:grid; grid-template-columns:repeat(8, 1fr); gap:4px 8px; margin-top:6px; } .grid16 label { display:flex; flex-direction:column; color:var(--dim); font-size:11px; } .grid16 input { width:100%; }
+  .modal { position:fixed; inset:0; background:#000a; display:none; align-items:center; justify-content:center; z-index:9; } .modal.open { display:flex; }
+  .modal .box { background:var(--panel); border:1px solid var(--gold); border-radius:8px; padding:14px; width:min(760px, 94vw); max-height:84vh; overflow:auto; }
+  .li { padding:3px 6px; cursor:pointer; border-radius:3px; } .li:hover { background:#25252d; } .li.audio { color:var(--gold); } .li.dir { color:var(--blue); }
+  #wf { width:100%; height:180px; background:#0b0b0e; border:1px solid var(--line); border-radius:4px; }
+  .pill { display:inline-block; padding:0 6px; border-radius:9px; font-size:11px; background:#26262e; color:var(--dim); } .pill.loop { background:#16301b; color:var(--green); }
+  small.hint, .hint { color:var(--dim); }
+</style>
+</head>
+<body>
+<header>
+  <h1>picopiano &middot; bank configurator</h1>
+  <input id="cfgpath" class="file" placeholder="config.yaml" title="the bank config file">
+  <button id="btnOpen">Open&hellip;</button><button id="btnSave">Save</button>
+  <button id="btnBuild" class="primary">Build</button><button id="btnExport" disabled>Export to firmware</button>
+  <span id="status">ready</span>
+</header>
+<div id="budget">
+  <div id="bar"></div>
+  <div id="barlabel"></div>
+</div>
+<main>
+  <div>
+    <section>
+      <h2>Instruments</h2>
+      <div class="tabs" id="tabs"></div>
+      <div id="instpanel"></div>
+    </section>
+    <section>
+      <h2>Samples <small class="hint">(a key range left automatic is split halfway between neighbouring roots in each velocity layer)</small></h2>
+      <div class="row">
+        <label>import folder</label><input id="impdir" class="file" placeholder="folder with the sample files"><button id="impbrowse" class="small">Browse</button>
+        <label>file name pattern</label><input id="imppat" value="{note}.*" style="width:120px" title="{note} = C4 / Ds1 / F#3 ... or {midi} = 60; * = anything">
+        <label>loop</label><select id="imploop"><option value="">none</option><option value="auto">auto</option></select>
+        <label>rate</label><input id="imprate" type="number" value="24000"><label>max s</label><input id="impdur" type="number" value="6" step="0.5">
+        <button id="impgo">Import</button>
+      </div>
+      <div class="row"><label>or an SFZ file</label><input id="impsfz" class="file" placeholder="instrument.sfz"><button id="sfzbrowse" class="small">Browse</button><label>layers (blank = all)</label><input id="impmaxlay" type="number" min="1" max="16" style="width:56px" title="keep only this many velocity layers, evenly spaced; the others are merged into them"><button id="sfzgo">Import SFZ</button>
+        <button id="addrow">+ empty sample</button><button id="autorange">Reset key ranges to automatic</button></div>
+      <div style="overflow-x:auto"><table id="samples"></table></div>
+    </section>
+  </div>
+  <div>
+    <section>
+      <h2>Keyboard map &mdash; which sample plays where <small class="hint">(click a key to hear it; red = gap)</small></h2>
+      <canvas id="kb" width="1100" height="176"></canvas>
+      <div class="row">
+        <label>velocity</label><input id="vel" type="range" min="1" max="127" value="80" style="width:150px"><span id="velv">80</span>
+        <label>length</label><input id="len" type="number" value="2.5" step="0.5" style="width:60px">
+        <label><input id="pedal" type="checkbox"> pedal</label>
+        <button id="chord">Chord</button><button id="btnAud" class="small">Play C4</button>
+      </div>
+      <div class="row" id="audknobs"></div>
+      <div id="audmsg" class="hint"></div>
+    </section>
+    <section><h2>Warnings</h2><div id="warns"></div></section>
+    <section><h2>Build result</h2><div id="result" class="hint">not built yet</div></section>
+  </div>
+</main>
+
+<div class="modal" id="browse"><div class="box"><div class="row"><strong id="bpath" style="flex:1"></strong><button id="bup">&uarr; up</button><button id="buse">Use this folder</button><button id="bclose">Close</button></div><div id="blist"></div></div></div>
+<div class="modal" id="wfm"><div class="box"><div class="row"><strong id="wft" style="flex:1"></strong><button id="wfclose">Close</button></div><canvas id="wf" width="720" height="180"></canvas><div id="wfinfo" class="hint"></div></div></div>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const NOTES = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+const noteName = k => NOTES[k % 12] + (Math.floor(k / 12) - 1);
+const isBlack = k => [1,3,6,8,10].includes(k % 12);
+const COLORS = i => `hsl(${(i * 47) % 360} 55% 42%)`;
+const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+let cfg = {budget: 3000000, instruments: []}, base = "", params = [], pdef = [], est = null, sel = 0, built = false, estTimer = null, estSeq = 0, busy = false;
+let aud = {key: 60, sample: -1}, browseCb = null, browseMode = "file", browsePath = "";
+
+function status(msg, cls) { const s = $("status"); s.textContent = msg; s.className = cls || ""; }
+async function api(path, body, method) {
+  const m = method || "POST"; const opt = {method: m};
+  if (m !== "GET") { opt.headers = {"Content-Type": "application/json"}; opt.body = JSON.stringify(body || {}); }
+  const r = await fetch(path, opt); const ct = r.headers.get("content-type") || "";
+  if (!ct.includes("json")) { if (!r.ok) throw new Error(await r.text()); return r; }
+  const j = await r.json(); if (!r.ok) throw new Error(j.error || r.statusText); return j;
+}
+const ins = () => cfg.instruments[sel];
+
+// ---------- load / save ----------
+async function init() {
+  const s = await api("/api/state", undefined, "GET"); cfg = s.cfg; base = s.base; params = s.params; pdef = s.param_defaults; $("cfgpath").value = s.path || ""; built = s.has_build;
+  if (!cfg.instruments) cfg.instruments = []; $("btnExport").disabled = !built; buildAudKnobs(); scheduleEstimate(0); renderAll();
+}
+async function save() {
+  const p = $("cfgpath").value.trim(); if (!p) return status("enter a file name first", "err");
+  try { await api("/api/save", {path: p, cfg}); status("saved " + p, "ok"); } catch (e) { status(e.message, "err"); }
+}
+function openFile() {
+  openBrowse("file", async p => { try { const r = await api("/api/load", {path: p}); cfg = r.cfg; base = r.base; $("cfgpath").value = p; sel = 0; built = false; $("btnExport").disabled = true; scheduleEstimate(0); status("opened " + p, "ok"); } catch (e) { status(e.message, "err"); } });
+}
+
+// ---------- estimate ----------
+function scheduleEstimate(ms) { clearTimeout(estTimer); estTimer = setTimeout(runEstimate, ms === undefined ? 450 : ms); }
+async function runEstimate() {
+  const my = ++estSeq; status("estimating...");
+  try { const e = await api("/api/estimate", {cfg, base}); if (my !== estSeq) return; est = e; status("ready"); }
+  catch (e) { if (my !== estSeq) return; est = null; status(e.message, "err"); }
+  renderAll();
+}
+
+// ---------- rendering ----------
+function renderAll() { renderBudget(); renderTabs(); renderInstrument(); renderSamples(); drawKeyboard(); renderWarns(); }
+function renderBudget() {
+  const bar = $("bar"); bar.innerHTML = ""; const budget = (est && est.budget) || cfg.budget || 3000000, total = est ? est.total : 0;
+  if (est) est.per_instrument.forEach((b, i) => { const d = document.createElement("div"); d.className = "seg"; d.style.width = (100 * b / Math.max(budget, total)) + "%"; d.style.background = COLORS(i * 3 + 1); d.title = ((cfg.instruments[i] || {}).name || "") + ": " + b.toLocaleString() + " bytes"; bar.appendChild(d); });
+  if (total > budget) { const o = document.createElement("div"); o.className = "seg over"; o.style.width = (100 * (total - budget) / total) + "%"; bar.appendChild(o); }
+  const flash = 4 * 1024 * 1024;
+  $("barlabel").innerHTML = est ? `${total.toLocaleString()} of ${budget.toLocaleString()} bytes (${(100 * total / budget).toFixed(1)} %) &middot; a 4 MB part leaves ${(Math.max(0, flash - total) / 1024 / 1024).toFixed(2)} MB for the firmware &middot; samples are cut to ${(est.scale * 100).toFixed(0)} % of their maximum length` : "no estimate (add samples)";
+}
+function renderTabs() {
+  const t = $("tabs"); t.innerHTML = "";
+  cfg.instruments.forEach((i, k) => { const b = document.createElement("button"); b.textContent = i.name || ("Instrument " + (k + 1)); if (k === sel) b.className = "active"; b.onclick = () => { sel = k; aud.sample = -1; renderAll(); }; t.appendChild(b); });
+  const a = document.createElement("button"); a.textContent = "+ instrument";
+  a.onclick = () => { cfg.instruments.push({name: "New " + (cfg.instruments.length + 1), rate_rules: [{max_key: 127, rate: 24000, maxdur: 6}], samples: []}); sel = cfg.instruments.length - 1; scheduleEstimate(); renderAll(); }; t.appendChild(a);
+}
+function renderInstrument() {
+  const p = $("instpanel"); p.innerHTML = ""; const i = ins(); if (!i) { p.innerHTML = '<div class="hint">Add an instrument, then import samples.</div>'; return; }
+  const row = document.createElement("div"); row.className = "row";
+  row.innerHTML = `<label>name</label><input id="iname" value="${esc(i.name || "")}" maxlength="12" style="width:110px"><label>level (dB)</label><input id="igain" type="number" step="0.5" value="${i.gain || 0}" style="width:60px"><label>total budget (bytes, all instruments)</label><input id="ibudget" type="number" step="50000" value="${cfg.budget || 3000000}" style="width:100px"> <button id="idel" class="small">Delete instrument</button>`;
+  p.appendChild(row);
+  $("iname").onchange = e => { i.name = e.target.value; scheduleEstimate(); renderTabs(); };
+  $("igain").onchange = e => { i.gain = parseFloat(e.target.value) || 0; scheduleEstimate(); };
+  $("ibudget").onchange = e => { cfg.budget = parseInt(e.target.value) || 3000000; scheduleEstimate(); };
+  $("idel").onclick = () => { if (confirm("Delete instrument " + i.name + "?")) { cfg.instruments.splice(sel, 1); sel = Math.max(0, sel - 1); scheduleEstimate(); renderAll(); } };
+  const d = document.createElement("details"); d.innerHTML = "<summary>Knob defaults when this instrument is selected (blank = the firmware default)</summary>"; const g = document.createElement("div"); g.className = "grid16";
+  params.forEach((n, k) => {
+    const l = document.createElement("label"); l.textContent = n; const inp = document.createElement("input"); inp.type = "number"; inp.min = 0; inp.max = 127; inp.placeholder = pdef[k]; inp.value = (i.defaults || {})[n] ?? "";
+    inp.onchange = e => { i.defaults = i.defaults || {}; if (e.target.value === "") delete i.defaults[n]; else i.defaults[n] = Math.max(0, Math.min(127, parseInt(e.target.value))); scheduleEstimate(); };
+    l.appendChild(inp); g.appendChild(l);
+  });
+  d.appendChild(g); p.appendChild(d);
+}
+function ensureExplicit() {      // an instrument defined by "import:" / "sfz:" becomes an explicit sample list, so that single cells can be edited
+  const i = ins(); if (!i || !est || !est.instruments[sel]) return; if (!i.import && !i.sfz && i.samples) return;
+  const fromSfz = !!i.sfz;
+  i.samples = (est.instruments[sel].samples.map(s => ({file: s.file, root: s.root_name, lo: fromSfz ? noteName(s.lo) : null, hi: fromSfz ? noteName(s.hi) : null, vlo: s.vlo, vhi: s.vhi, vref: s.vref, gain: s.gain, loop: s.loop, loop_sfz: s.loop_sfz, rate: s.rate, maxdur: s.maxdur})));       // the estimate already lists the explicit samples too: no duplicates
+  delete i.import; delete i.sfz;
+}
+function renderSamples() {
+  const t = $("samples"); t.innerHTML = ""; const i = ins(); const e = est && est.instruments[sel]; if (!i || !e) return;
+  t.innerHTML = "<tr><th></th><th>file</th><th>root</th><th>keys</th><th>velocity</th><th>ref</th><th>gain dB</th><th>loop</th><th>rate</th><th>max s</th><th>bytes</th><th>kept</th><th></th></tr>";
+  const rows = est.samples.filter(s => s.instrument === sel);
+  e.samples.forEach((s, k) => {
+    const r = rows[k] || {}; const tr = document.createElement("tr"); if (k === aud.sample) tr.className = "sel";
+    const cell = html => { const td = document.createElement("td"); td.innerHTML = html; tr.appendChild(td); return td; };
+    cell(`<span style="display:inline-block;width:10px;height:10px;background:${COLORS(k)};border-radius:2px"></span>`);
+    cell(`<input class="file" data-f="file" value="${esc(s.file)}" style="width:190px" title="${esc(s.file)}"> <button class="small" data-b="file">&hellip;</button>`);
+    cell(`<input class="note" data-f="root" value="${s.root_name}">`);
+    cell(`<input class="note" data-f="lo" value="${noteName(s.lo)}"> &ndash; <input class="note" data-f="hi" value="${noteName(s.hi)}">`);
+    cell(`<input type="number" data-f="vlo" value="${s.vlo}" min="1" max="127" style="width:48px"> &ndash; <input type="number" data-f="vhi" value="${s.vhi}" min="1" max="127" style="width:48px">`);
+    cell(`<input type="number" data-f="vref" value="${s.vref}" min="1" max="127" style="width:48px" title="the velocity this sample was recorded at: it plays unfiltered and unchanged">`);
+    cell(`<input type="number" data-f="gain" value="${s.gain}" step="0.5" style="width:54px">`);
+    cell(`<select data-f="loop"><option ${s.loop === "none" ? "selected" : ""}>none</option><option ${s.loop === "auto" ? "selected" : ""}>auto</option>${s.loop_sfz ? `<option value="sfz" ${s.loop === "sfz" ? "selected" : ""}>from SFZ</option>` : ""}</select>`);
+    cell(`<input type="number" data-f="rate" value="${s.rate}" step="2000" style="width:64px">`);
+    cell(`<input type="number" data-f="maxdur" value="${s.maxdur}" step="0.5" style="width:56px">`);
+    cell(`<span class="n">${r.bytes ? (r.bytes / 1024).toFixed(0) + " KB" : ""}</span>`); cell(`<span class="n">${r.dur ? r.dur.toFixed(1) + " s" : ""}</span>`);
+    cell(`<button class="small" data-b="wf" title="waveform">~</button> <button class="small" data-b="del" title="remove">&times;</button>`);
+    tr.querySelectorAll("[data-f]").forEach(el => { el.onchange = () => editCell(k, el.dataset.f, el.value); });
+    tr.querySelectorAll("[data-b]").forEach(b => { b.onclick = () => { const w = b.dataset.b; if (w === "file") openBrowse("file", p => editCell(k, "file", p)); else if (w === "wf") showWave(s.file, s.name); else { ensureExplicit(); i.samples.splice(k, 1); scheduleEstimate(); renderAll(); } }; });
+    tr.onclick = ev => { if (ev.target.tagName === "TR" || ev.target.tagName === "TD") { aud.sample = k; aud.key = s.root; renderSamples(); drawKeyboard(); } };
+    t.appendChild(tr);
+  });
+}
+function editCell(k, f, v) {
+  ensureExplicit(); const i = ins(); if (!i.samples || !i.samples[k]) return; const s = i.samples[k];
+  if (["vlo", "vhi", "vref", "rate"].includes(f)) s[f] = parseInt(v); else if (["gain", "maxdur"].includes(f)) s[f] = parseFloat(v); else s[f] = v;
+  scheduleEstimate();
+}
+async function doImport(body) {
+  if (!ins()) { cfg.instruments.push({name: "New 1", rate_rules: [{max_key: 127, rate: 24000, maxdur: 6}], samples: []}); sel = 0; }
+  try {
+    status("importing..."); const r = await api("/api/import", Object.assign({base}, body)); ensureExplicit(); const i = ins();
+    i.samples = (i.samples || []).concat(r.samples); delete i.import; delete i.sfz; status(r.samples.length + " samples imported" + ((r.notes && r.notes.length) ? " (" + r.notes.length + " notes: " + r.notes[0] + (r.notes.length > 1 ? " ..." : "") + ")" : ""), "ok"); scheduleEstimate(0); renderAll();
+  } catch (e) { status(e.message, "err"); }
+}
+function renderWarnsList(w) { return w.map(x => `<div class="warn${/over the budget|very tight|not found/.test(x) ? " bad" : ""}">&#9888; ${esc(x)}</div>`).join(""); }
+function renderWarns() {
+  const w = $("warns"); if (!est) { w.innerHTML = '<div class="hint">no estimate</div>'; return; }
+  w.innerHTML = est.warnings.length ? renderWarnsList(est.warnings) : '<div class="good">no warnings: every key has a sample, no large pitch shifts</div>';
+}
+
+// ---------- keyboard map ----------
+function whiteIndex(k) { let w = 0; for (let i = 21; i < k; i++) if (!isBlack(i)) w++; return w; }
+const KB = {x0: 6, w: 1088, white: 52};
+function keyX(k) { const ww = KB.w / KB.white, wi = whiteIndex(k); return isBlack(k) ? KB.x0 + wi * ww - ww * 0.3 : KB.x0 + wi * ww; }
+function drawKeyboard() {
+  const c = $("kb"), g = c.getContext("2d"); g.clearRect(0, 0, c.width, c.height); g.fillStyle = "#0b0b0e"; g.fillRect(0, 0, c.width, c.height);
+  const e = est && est.instruments[sel], ww = KB.w / KB.white, top = 6, kh = 62;
+  for (let k = 21; k <= 108; k++) if (!isBlack(k)) { g.fillStyle = (aud.key === k) ? "#d4a937" : "#efe9d6"; g.fillRect(keyX(k), top, ww - 1, kh); if (k % 12 === 0) { g.fillStyle = "#777"; g.font = "9px sans-serif"; g.fillText(noteName(k), keyX(k) + 1, top + kh - 3); } }
+  for (let k = 21; k <= 108; k++) if (isBlack(k)) { g.fillStyle = (aud.key === k) ? "#c08020" : "#222"; g.fillRect(keyX(k), top, ww * 0.6, kh * 0.62); }
+  if (!e) { g.fillStyle = "#888"; g.font = "12px sans-serif"; g.fillText("no instrument", 20, 120); return; }
+  const layers = e.layers, lh = Math.min(26, Math.floor(100 / Math.max(1, layers.length))), kw = KB.w / 88;
+  layers.forEach((L, li) => {
+    const y = top + kh + 8 + li * (lh + 3); g.fillStyle = "#888"; g.font = "9px sans-serif"; g.fillText(`vel ${L[0]}-${L[1]}`, 2, y + lh - 2);
+    for (let k = 21; k <= 108; k++) {
+      const si = e.keys[k][li]; const kx0 = KB.x0 + (k - 21) * kw;
+      if (si === null || si === undefined) { g.fillStyle = "#6a2020"; g.fillRect(kx0, y, kw - 0.5, lh); }
+      else { g.fillStyle = COLORS(si); g.globalAlpha = (aud.sample === si) ? 1 : 0.85; g.fillRect(kx0, y, kw - 0.5, lh); g.globalAlpha = 1; if (e.samples[si].root === k) { g.fillStyle = "#fff"; g.fillRect(kx0 + 1, y + lh / 2 - 2, kw - 2.5, 4); } }
+    }
+  });
+}
+function keyAt(ev) {
+  const c = $("kb"), r = c.getBoundingClientRect(), x = (ev.clientX - r.left) * c.width / r.width, y = (ev.clientY - r.top) * c.height / r.height; if (y > 70) return null;
+  const ww = KB.w / KB.white;
+  for (let k = 21; k <= 108; k++) if (isBlack(k)) { const kx = keyX(k); if (x >= kx && x < kx + ww * 0.6 && y < 6 + 62 * 0.62) return k; }
+  for (let k = 21; k <= 108; k++) if (!isBlack(k)) { const kx = keyX(k); if (x >= kx && x < kx + ww) return k; }
+  return null;
+}
+
+// ---------- build / export / audition ----------
+async function build() {
+  if (busy) return; busy = true; $("btnBuild").disabled = true; status("building...");
+  try {
+    const j = await api("/api/build", {cfg, base}); let job;
+    for (;;) { await new Promise(r => setTimeout(r, 600)); job = await api("/api/job/" + j.job, undefined, "GET"); if (job.state === "running") status(`building ${job.i + 1}/${job.n}: ${job.msg}`); else break; }
+    if (job.state === "error") throw new Error(job.error);
+    built = true; $("btnExport").disabled = false; showResult(job.result); status("built: " + job.result.total.toLocaleString() + " bytes", "ok");
+  } catch (e) { status(e.message, "err"); }
+  busy = false; $("btnBuild").disabled = false;
+}
+function showResult(r) {
+  let h = `<table><tr><th>instrument</th><th>sample</th><th>root</th><th>keys</th><th>vel</th><th>rate</th><th>kept</th><th>bytes</th><th>SNR</th><th></th></tr>`;
+  r.zones.forEach(z => {
+    h += `<tr><td>${esc(r.instruments[z.instrument].name)}</td><td>${esc(z.name)}</td><td>${noteName(z.root)}</td><td>${noteName(z.lo)}&ndash;${noteName(z.hi)}</td><td>${z.vlo}&ndash;${z.vhi}</td><td class="n">${z.rate}</td><td class="n">${z.dur} s</td><td class="n">${z.bytes.toLocaleString()}</td><td class="n" style="color:${z.snr < 20 ? "#d0584a" : z.snr < 28 ? "#e0b050" : "#6cc070"}">${z.snr} dB</td><td>${z.loopEnd ? '<span class="pill loop">loop</span>' : ""}</td></tr>`;
+  });
+  const lv = r.instruments.map(i => `${esc(i.name)}: measured ${i.level_db} dBFS` + (i.level_offset_db ? `, level match ${i.level_offset_db > 0 ? "+" : ""}${i.level_offset_db} dB` : "")).join(" &middot; ");
+  $("result").innerHTML = `<div class="good">${r.zones.length} zones, ${r.total.toLocaleString()} bytes</div><div class="hint">levels (RMS of the first second at velocity 80): ${lv}</div>` + h + "</table>" + (r.warnings.length ? renderWarnsList(r.warnings) : "");
+}
+async function exportFw() {
+  try { const r = await api("/api/export", {}); status("wrote " + r.files.length + " files (" + r.bytes.toLocaleString() + " bytes of samples): now rebuild the firmware", "ok"); } catch (e) { status(e.message, "err"); }
+}
+function audParams() { const o = {}; document.querySelectorAll("#audknobs input").forEach(i => { o[i.dataset.p] = parseInt(i.value); }); return o; }
+function buildAudKnobs() {
+  const a = $("audknobs"); a.innerHTML = "";
+  ["tone", "hard", "rel", "rev", "chor", "trem"].forEach(n => { if (!params.includes(n)) return; const l = document.createElement("label"); l.append(n + " "); const i = document.createElement("input"); i.type = "range"; i.min = 0; i.max = 127; i.dataset.p = n; i.value = pdef[params.indexOf(n)]; i.style.width = "70px"; l.appendChild(i); a.appendChild(l); });
+}
+let audioEl = null;
+async function audition(notes) {
+  if (!built) { $("audmsg").textContent = "Build first: the audition plays the built bank through the firmware's own engine."; return; }
+  $("audmsg").textContent = "rendering (the first audition after a build compiles the engine, about 15 s)...";
+  try {
+    const r = await api("/api/audition", {instrument: sel, key: aud.key, vel: parseInt($("vel").value), seconds: parseFloat($("len").value), pedal: $("pedal").checked, params: audParams(), notes});
+    const blob = await r.blob(); if (audioEl) audioEl.pause(); audioEl = new Audio(URL.createObjectURL(blob)); audioEl.play(); $("audmsg").textContent = "";
+  } catch (e) { $("audmsg").textContent = e.message; }
+}
+
+// ---------- modals ----------
+async function openBrowse(mode, cb, startPath) {
+  browseCb = cb; browseMode = mode; $("browse").classList.add("open"); $("buse").style.display = mode === "dir" ? "" : "none"; await listDir(startPath || browsePath || "");
+}
+async function listDir(p) {
+  try {
+    const r = await api("/api/browse?path=" + encodeURIComponent(p), undefined, "GET"); browsePath = r.path; $("bpath").textContent = r.path; $("bup").onclick = () => listDir(r.parent);
+    const l = $("blist"); l.innerHTML = "";
+    r.dirs.forEach(d => { const e = document.createElement("div"); e.className = "li dir"; e.textContent = "\u{1F4C1} " + d; e.onclick = () => listDir(r.path + "/" + d); l.appendChild(e); });
+    r.files.forEach(f => { const e = document.createElement("div"); e.className = "li" + (f.audio || f.sfz || f.yaml ? " audio" : ""); e.textContent = f.name + "  (" + (f.size / 1024).toFixed(0) + " KB)"; e.onclick = () => { if (browseMode === "file") { $("browse").classList.remove("open"); browseCb(r.path + "/" + f.name); } }; l.appendChild(e); });
+  } catch (e) { $("blist").textContent = e.message; }
+}
+async function showWave(file, name) {
+  $("wfm").classList.add("open"); $("wft").textContent = name; $("wfinfo").textContent = "loading...";
+  try {
+    const w = await api("/api/waveform?file=" + encodeURIComponent(file), undefined, "GET"); const c = $("wf"), g = c.getContext("2d"); g.fillStyle = "#0b0b0e"; g.fillRect(0, 0, c.width, c.height);
+    const n = w.lo.length, mid = c.height / 2, sc = (c.height / 2 - 4) / Math.max(w.peak, 1e-6); g.strokeStyle = "#d4a937"; g.beginPath();
+    for (let i = 0; i < n; i++) { const x = i * c.width / n; g.moveTo(x, mid - w.hi[i] * sc); g.lineTo(x, mid - w.lo[i] * sc); } g.stroke();
+    if (w.kept) { g.fillStyle = "#ffffff12"; g.fillRect(0, 0, w.kept / w.dur * c.width, c.height); }
+    if (w.loop) { g.strokeStyle = "#6cc070"; g.lineWidth = 2; [w.loop.start, w.loop.end].forEach(t => { const x = t / w.dur * c.width; g.beginPath(); g.moveTo(x, 0); g.lineTo(x, c.height); g.stroke(); }); g.lineWidth = 1; }
+    $("wfinfo").textContent = `${w.dur.toFixed(2)} s after trimming to the onset` + (w.kept ? `; the shaded part (${w.kept.toFixed(2)} s) is what the last build kept` : "") + (w.loop ? `; green lines: the loop (${w.loop.start.toFixed(2)} s to ${w.loop.end.toFixed(2)} s)` : "");
+  } catch (e) { $("wfinfo").textContent = e.message; }
+}
+
+// ---------- wiring ----------
+$("btnOpen").onclick = openFile; $("btnSave").onclick = save; $("btnBuild").onclick = build; $("btnExport").onclick = exportFw;
+$("impbrowse").onclick = () => openBrowse("dir", p => { $("impdir").value = p; }); $("buse").onclick = () => { $("browse").classList.remove("open"); if (browseCb) browseCb(browsePath); };
+$("sfzbrowse").onclick = () => openBrowse("file", p => { $("impsfz").value = p; });
+$("bclose").onclick = () => $("browse").classList.remove("open"); $("wfclose").onclick = () => $("wfm").classList.remove("open");
+$("impgo").onclick = () => doImport({dir: $("impdir").value.trim(), pattern: $("imppat").value, loop: $("imploop").value, rate: parseInt($("imprate").value), maxdur: parseFloat($("impdur").value)});
+$("sfzgo").onclick = () => doImport({sfz: $("impsfz").value.trim(), loop: $("imploop").value, max_layers: parseInt($("impmaxlay").value) || 0, rate: parseInt($("imprate").value), maxdur: parseFloat($("impdur").value)});
+$("addrow").onclick = () => { if (!ins()) return; ensureExplicit(); const i = ins(); i.samples = i.samples || []; i.samples.push({file: "", root: "C4", vlo: 1, vhi: 127, rate: 24000, maxdur: 6}); renderAll(); status("fill in the file name"); };
+$("autorange").onclick = () => { ensureExplicit(); (ins().samples || []).forEach(s => { s.lo = null; s.hi = null; }); scheduleEstimate(0); };
+$("vel").oninput = () => { $("velv").textContent = $("vel").value; };
+$("kb").onclick = ev => { const k = keyAt(ev); if (k === null) return; aud.key = k; drawKeyboard(); audition(); };
+$("btnAud").onclick = () => { aud.key = 60; drawKeyboard(); audition(); };
+$("chord").onclick = () => { const k = aud.key; audition([{key: k, at: 0, len: 2}, {key: k + 4, at: 0.06, len: 2}, {key: k + 7, at: 0.12, len: 2}, {key: k + 12, at: 0.18, len: 2}]); };
+$("cfgpath").onkeydown = ev => { if (ev.key === "Enter") save(); };
+window.addEventListener("load", () => init().catch(e => status(e.message, "err")));
+</script>
+</body>
+</html>
